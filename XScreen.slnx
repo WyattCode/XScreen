@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/XScreen.App/XScreen.App.csproj" />
+    <Project Path="src/XScreen.Core/XScreen.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/XScreen.Acceptance/XScreen.Acceptance.csproj" />
+    <Project Path="tests/XScreen.OfflineSafety/XScreen.OfflineSafety.csproj" />
+    <Project Path="tests/XScreen.OsdChecks/XScreen.OsdChecks.csproj" />
+  </Folder>
+</Solution>

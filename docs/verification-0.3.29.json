@@ -1,0 +1,39 @@
+{
+  "version": "0.3.29",
+  "verification": "offline fake monitor transport; no physical keyboard injection or real monitor I/O",
+  "ui": {
+    "scenarios": 23,
+    "checks": 428,
+    "failures": 0,
+    "nativeReads": 0,
+    "nativeWrites": 0
+  },
+  "protocol": {
+    "checks": 187,
+    "failures": 0,
+    "nativeReads": 0,
+    "nativeWrites": 0
+  },
+  "interactionChecks": 25,
+  "diagnosticsChecks": 23,
+  "safetyChecks": 19,
+  "acceptance": "passed",
+  "liveModeStartedForThisRelease": false,
+  "assemblies": [
+    {
+      "name": "XScreen.dll",
+      "sha256": "60949f6c5ba6b8ff84152b8a5ccd481a64e912d1db0443ea43a38af3a9181d3e",
+      "matchesOfflineTestHost": true
+    },
+    {
+      "name": "XScreen.Core.dll",
+      "sha256": "0fc95a74f3db163d231161e39dbdc58f786d373d2605290dc41b9d5c782787e6",
+      "matchesOfflineTestHost": true
+    }
+  ],
+  "zip": {
+    "name": "XScreen-0.3.29-win-x64.zip",
+    "files": 521,
+    "sha256": "32ca703f38e43b0ff243143d523495a0399da4f4876416d198bf6c896bfd2434"
+  }
+}
