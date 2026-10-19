@@ -10,6 +10,7 @@
 !/tests/
 !/scripts/
 !/docs/
+!/packaging/
 !/tools/
 /src/*
 !/src/XScreen.App/
@@ -26,6 +27,8 @@
 !/scripts/Build-XScreen.ps1
 !/scripts/Test-XScreenOfflineUi.ps1
 !/scripts/Package-XScreen.ps1
+!/scripts/Build-XScreenInstaller.ps1
+!/scripts/Test-XScreenInstaller.py
 /tools/*
 !/tools/OsdAcceptanceProbe/
 /tools/OsdAcceptanceProbe/*
