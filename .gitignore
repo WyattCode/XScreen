@@ -28,6 +28,8 @@
 !/scripts/Test-XScreenOfflineUi.ps1
 !/scripts/Package-XScreen.ps1
 !/scripts/Build-XScreenInstaller.ps1
+!/scripts/Build-XScreenInstaller.cjs
+!/scripts/Test-XScreenInstallerBehavior.py
 !/scripts/Test-XScreenInstaller.py
 /tools/*
 !/tools/OsdAcceptanceProbe/

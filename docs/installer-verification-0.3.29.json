@@ -1,15 +1,2194 @@
 {
+  "packager": "electron-builder 26.15.3",
   "version": "0.3.29",
-  "packager": "electron-builder",
-  "packagerVersion": "26.15.3",
-  "mode": "prepackaged native WinUI",
+  "checks": 545,
+  "failures": 0,
   "payloadFiles": 521,
-  "payloadUnchanged": true,
-  "setup": "XScreen Setup 0.3.29.exe",
-  "sha256": "9827444c87ec5966d01f631dfeb02afbce7e3ec38039b8dda8593fdf366accfa",
-  "finalInstallerExecuted": false,
+  "blockmapChunks": 3226,
+  "finalSetupExecuted": false,
   "applicationExecuted": false,
-  "staticChecks": 538,
-  "staticFailures": 0,
-  "blockmapChunksVerified": 3224
+  "realMonitorReads": 0,
+  "realMonitorWrites": 0,
+  "results": [
+    {
+      "name": "Setup is a Windows GUI executable",
+      "passed": true
+    },
+    {
+      "name": "Setup has a native NSIS header",
+      "passed": true
+    },
+    {
+      "name": "Embedded NSIS CRC validates the complete protected installer",
+      "passed": true
+    },
+    {
+      "name": "Setup requests normal user privileges",
+      "passed": true
+    },
+    {
+      "name": "Setup product and version resources match the application",
+      "passed": true
+    },
+    {
+      "name": "Setup contains its icon",
+      "passed": true
+    },
+    {
+      "name": "win-unpacked contains exactly the previously verified native payload, with no Electron runtime",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: af-ZA/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: af-ZA/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: am-ET/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: am-ET/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ar-SA/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ar-SA/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: as-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: as-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Assets/LG.svg",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Assets/LG-Dark.svg",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Assets/Sharpness.svg",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Assets/UltraGearBackdrop.png",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Assets/XScreen.ico",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Assets/XScreen.png",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: az-Latn-AZ/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: az-Latn-AZ/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: bg-BG/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: bg-BG/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: bn-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: bn-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: bs-Latn-BA/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: bs-Latn-BA/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ca-ES/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ca-ES/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ca-Es-VALENCIA/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ca-Es-VALENCIA/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: clretwrc.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: clrgc.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: clrgcexp.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: clrjit.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: coreclr.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: CoreMessagingXP.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: createdump.exe",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: cs-CZ/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: cs-CZ/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: cy-GB/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: cy-GB/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: da-DK/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: da-DK/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: dcompi.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: de-DE/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: de-DE/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: DirectML.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: dwmcorei.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: DwmSceneI.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: DWriteCore.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: el-GR/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: el-GR/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: en-GB/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: en-GB/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: en-us/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: en-us/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: es-ES/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: es-ES/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: es-MX/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: es-MX/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: et-EE/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: et-EE/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: eu-ES/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: eu-ES/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fa-IR/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fa-IR/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fi-FI/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fi-FI/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fil-PH/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fil-PH/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fr-CA/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fr-CA/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fr-FR/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: fr-FR/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ga-IE/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ga-IE/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: gd-gb/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: gd-gb/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: gl-ES/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: gl-ES/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: gu-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: gu-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: he-IL/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: he-IL/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hi-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hi-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hostfxr.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hostpolicy.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hr-HR/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hr-HR/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hu-HU/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hu-HU/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hy-AM/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: hy-AM/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: id-ID/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: id-ID/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: is-IS/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: is-IS/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: it-IT/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: it-IT/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ja-JP/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ja-JP/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ka-GE/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ka-GE/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: kk-KZ/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: kk-KZ/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: km-KH/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: km-KH/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: kn-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: kn-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: kok-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: kok-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ko-KR/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ko-KR/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: lb-LU/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: lb-LU/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: lo-LA/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: lo-LA/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: lt-LT/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: lt-LT/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: lv-LV/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: lv-LV/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: marshal.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.CSharp.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.DiaSymReader.Native.amd64.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.DirectManipulation.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Foundation.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Graphics.Display.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Graphics.Imaging.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Graphics.Imaging.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Graphics.Imaging.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Graphics.ImagingInternal.ImageObjectRemover.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Graphics.ImagingInternal.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Graphics.Internal.Imaging.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Graphics.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.InputStateManager.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.InteractiveExperiences.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Internal.FrameworkUdk.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.ML.OnnxRuntime.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Security.Authentication.OAuth.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Security.Authentication.OAuth.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Composition.OSSupport.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Designer.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Input.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.pri",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Text.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Windowing.Core.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Windowing.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Xaml.Controls.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Xaml.Controls.pri",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.ui.xaml.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Xaml.Internal.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Xaml.Phone.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.ui.xaml.resources.19h1.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.ui.xaml.resources.common.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Xaml.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Xaml/Assets/map.html",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.UI.Xaml/Assets/NoiseAsset_256x256_PNG.png",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.VisualBasic.Core.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.VisualBasic.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Web.WebView2.Core.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Web.WebView2.Core.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Win32.Primitives.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Win32.Registry.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.AICapabilities.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.ContentModerationInternal.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.ContentSafety.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.ContentSafety.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.ContentSafety.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Foundation.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Foundation.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.FoundationInternal.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.GenerativeInternal.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Imaging.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Imaging.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Imaging.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.MachineLearning.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.MachineLearning.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Text.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Text.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Text.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Video.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Video.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.Video.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AI.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.Background.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.Background.UniversalBGTask.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.Background.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.DynamicDependency.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.DynamicDependency.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.Resources.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.Resources.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.Resources.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.WindowsAppRuntime.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ApplicationModel.WindowsAppRuntime.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AppLifecycle.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AppLifecycle.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AppNotifications.Builder.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AppNotifications.Builder.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AppNotifications.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.AppNotifications.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.BadgeNotifications.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.BadgeNotifications.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Foundation.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Foundation.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Globalization.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.ImageCreationInternal.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Internal.AI.ContentModeration.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Internal.AI.Generative.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Internal.ImageCreation.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Internal.SemanticSearch.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Internal.Vision.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Management.Deployment.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Management.Deployment.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Media.Capture.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Media.Capture.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Private.Workloads.SessionManager.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.PrivateCommon.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.PushNotifications.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.PushNotifications.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.SDK.NET.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Security.AccessControl.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Security.AccessControl.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.SemanticSearch.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.SemanticSearchInternal.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Storage.Pickers.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Storage.Pickers.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Storage.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Storage.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.System.Power.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.System.Power.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.System.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.System.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Vision.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.VisionInternal.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Widgets.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Widgets.Projection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Widgets.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Workloads.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Workloads.pri",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Workloads.Resources.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Workloads.Resources_ec.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.Windows.Workloads.winmd",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.WindowsAppRuntime.Bootstrap.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.WindowsAppRuntime.Bootstrap.Net.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.WindowsAppRuntime.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.WindowsAppRuntime.pri",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: Microsoft.WinUI.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mi-NZ/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mi-NZ/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mk-MK/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mk-MK/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ml-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ml-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mr-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mr-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: MRM.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mscordaccore.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mscordaccore_amd64_amd64_10.0.1026.32716.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mscordbi.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mscorlib.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mscorrc.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ms-MY/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ms-MY/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: msquic.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mt-MT/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: mt-MT/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: nb-NO/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: nb-NO/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ne-NP/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ne-NP/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: netstandard.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: nl-NL/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: nl-NL/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: nn-NO/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: nn-NO/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: NPUDetect.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: onnxruntime.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: or-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: or-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: pa-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: pa-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: PerceptiveStreaming.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: pl-PL/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: pl-PL/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: pt-BR/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: pt-BR/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: pt-PT/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: pt-PT/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: PushNotificationsLongRunningTask.ProxyStub.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: quz-PE/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: quz-PE/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: README.md",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: RELEASE-NOTES.md",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: RestartAgent.exe",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ro-RO/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ro-RO/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ru-RU/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ru-RU/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: SessionHandleIPCProxyStub.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sk-SK/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sk-SK/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sl-SI/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sl-SI/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sq-AL/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sq-AL/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sr-Cyrl-BA/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sr-Cyrl-BA/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sr-Cyrl-RS/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sr-Cyrl-RS/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sr-Latn-RS/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sr-Latn-RS/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sv-SE/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: sv-SE/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.AppContext.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Buffers.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Collections.Concurrent.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Collections.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Collections.Immutable.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Collections.NonGeneric.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Collections.Specialized.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ComponentModel.Annotations.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ComponentModel.DataAnnotations.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ComponentModel.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ComponentModel.EventBasedAsync.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ComponentModel.Primitives.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ComponentModel.TypeConverter.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Configuration.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Console.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Core.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Data.Common.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Data.DataSetExtensions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Data.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.Contracts.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.Debug.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.DiagnosticSource.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.FileVersionInfo.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.Process.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.StackTrace.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.TextWriterTraceListener.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.Tools.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.TraceSource.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Diagnostics.Tracing.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Drawing.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Drawing.Primitives.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Dynamic.Runtime.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Formats.Asn1.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Formats.Tar.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Globalization.Calendars.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Globalization.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Globalization.Extensions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.Compression.Brotli.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.Compression.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.Compression.FileSystem.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.Compression.Native.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.Compression.ZipFile.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.FileSystem.AccessControl.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.FileSystem.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.FileSystem.DriveInfo.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.FileSystem.Primitives.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.FileSystem.Watcher.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.IsolatedStorage.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.MemoryMappedFiles.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.Pipelines.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.Pipes.AccessControl.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.Pipes.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.IO.UnmanagedMemoryStream.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Linq.AsyncEnumerable.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Linq.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Linq.Expressions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Linq.Parallel.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Linq.Queryable.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Memory.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Http.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Http.Json.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.HttpListener.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Mail.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.NameResolution.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.NetworkInformation.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Ping.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Primitives.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Quic.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Requests.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Security.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.ServerSentEvents.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.ServicePoint.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.Sockets.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.WebClient.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.WebHeaderCollection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.WebProxy.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.WebSockets.Client.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Net.WebSockets.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Numerics.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Numerics.Tensors.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Numerics.Vectors.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ObjectModel.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Private.CoreLib.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Private.DataContractSerialization.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Private.Uri.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Private.Xml.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Private.Xml.Linq.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.DispatchProxy.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.Emit.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.Emit.ILGeneration.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.Emit.Lightweight.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.Extensions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.Metadata.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.Primitives.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Reflection.TypeExtensions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Resources.Reader.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Resources.ResourceManager.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Resources.Writer.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.CompilerServices.Unsafe.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.CompilerServices.VisualC.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Extensions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Handles.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.InteropServices.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.InteropServices.JavaScript.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.InteropServices.RuntimeInformation.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Intrinsics.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Loader.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Numerics.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Serialization.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Serialization.Formatters.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Serialization.Json.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Serialization.Primitives.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Runtime.Serialization.Xml.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.AccessControl.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Claims.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Cryptography.Algorithms.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Cryptography.Cng.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Cryptography.Csp.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Cryptography.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Cryptography.Encoding.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Cryptography.OpenSsl.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Cryptography.Primitives.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Cryptography.X509Certificates.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Principal.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.Principal.Windows.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Security.SecureString.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ServiceModel.Web.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ServiceProcess.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Text.Encoding.CodePages.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Text.Encoding.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Text.Encoding.Extensions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Text.Encodings.Web.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Text.Json.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Text.RegularExpressions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.AccessControl.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.Channels.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.Overlapped.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.Tasks.Dataflow.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.Tasks.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.Tasks.Extensions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.Tasks.Parallel.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.Thread.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.ThreadPool.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Threading.Timer.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Transactions.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Transactions.Local.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.ValueTuple.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Web.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Web.HttpUtility.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Windows.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.Linq.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.ReaderWriter.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.Serialization.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.XDocument.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.XmlDocument.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.XmlSerializer.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.XPath.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: System.Xml.XPath.XDocument.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ta-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ta-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: te-IN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: te-IN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: th-TH/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: th-TH/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: tr-TR/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: tr-TR/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: tt-RU/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: tt-RU/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ug-CN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ug-CN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: uk-UA/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: uk-UA/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ur-PK/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: ur-PK/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: uz-Latn-UZ/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: uz-Latn-UZ/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: vi-VN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: vi-VN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: WebView2Loader.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: WindowsBase.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: WinRT.Runtime.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: WinUIEdit.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: workloads.365.json",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: workloads.j32.json",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: workloads.json",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: workloads.lnl.json",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: workloads.qnn.json",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: workloads.stx.json",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: wuceffectsi.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: XScreen.Core.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: XScreen.deps.json",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: XScreen.dll",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: XScreen.exe",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: XScreen.pri",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: XScreen.runtimeconfig.json",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: zh-CN/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: zh-CN/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: zh-TW/Microsoft.ui.xaml.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "Native payload remains unchanged: zh-TW/Microsoft.UI.Xaml.Phone.dll.mui",
+      "passed": true
+    },
+    {
+      "name": "latest.yml SHA512 values match the actual Setup executable",
+      "passed": true
+    },
+    {
+      "name": "latest.yml version, upload filename and size are correct",
+      "passed": true
+    },
+    {
+      "name": "Every blockmap chunk hash and byte range matches Setup",
+      "passed": true
+    },
+    {
+      "name": "Finish page does not automatically run XScreen",
+      "passed": true
+    },
+    {
+      "name": "Standard assisted installer includes installation directory selection",
+      "passed": true
+    },
+    {
+      "name": "Native executable editing and added elevation helper are disabled",
+      "passed": true
+    },
+    {
+      "name": "Running application is rejected without automatic process termination",
+      "passed": true
+    },
+    {
+      "name": "Custom hooks do not launch the native application",
+      "passed": true
+    },
+    {
+      "name": "Custom removal includes only owned payload, installer icon and uninstaller",
+      "passed": true
+    },
+    {
+      "name": "Custom removal does not recursively delete logs, settings or unowned files",
+      "passed": true
+    },
+    {
+      "name": "Shortcut removal checks its destination instead of deleting by filename",
+      "passed": true
+    },
+    {
+      "name": "Build uses static uninstaller extraction without executing generated EXEs",
+      "passed": true
+    },
+    {
+      "name": "Statically extracted uninstaller also has a valid complete NSIS CRC",
+      "passed": true
+    },
+    {
+      "name": "Uninstaller evidence matches the binary embedded by the builder",
+      "passed": true
+    },
+    {
+      "name": "Tested installer sources exactly match the compiled source hashes",
+      "passed": true
+    },
+    {
+      "name": "Installer revision 2 is identifiable in PE file version",
+      "passed": true
+    },
+    {
+      "name": "Final checkpoint validates dedicated local directory, existing contents and reparse paths",
+      "passed": true
+    }
+  ]
 }

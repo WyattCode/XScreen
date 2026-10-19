@@ -25,25 +25,28 @@ foreach ($file in $manifest.files) {
     $destination = Join-Path $prepackaged $relative
     $null = New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($destination)) -Force
     Copy-Item -LiteralPath $original -Destination $destination
-    $remove += 'Delete "$INSTDIR\' + $relative + '"'
+    $remove += '!insertmacro XScreenDeleteOwned "' + $relative + '"'
     $directory = [IO.Path]::GetDirectoryName($relative)
     while ($directory) { $directories += $directory; $directory = [IO.Path]::GetDirectoryName($directory) }
 }
 foreach ($directory in $directories | Select-Object -Unique | Sort-Object Length -Descending) { $remove += 'RMDir "$INSTDIR\' + $directory + '"' }
+$remove += '!insertmacro XScreenDeleteOwned "uninstallerIcon.ico"'
 $remove += 'Delete "$INSTDIR\Uninstall XScreen.exe"'
-$remove += 'Delete "$DESKTOP\XScreen.lnk"'
 $remove += 'SetOutPath "$TEMP"'
 $remove += 'RMDir "$INSTDIR"'
 $remove | Set-Content -LiteralPath (Join-Path $projectRoot 'packaging/generated-uninstall.nsh') -Encoding UTF8
+$paths = @($manifest.files | ForEach-Object { $_.path.Substring(8).Replace('/', '\') }) + @($directories | Select-Object -Unique) + @('Uninstall XScreen.exe', 'uninstallerIcon.ico')
+$paths | ForEach-Object { '!insertmacro XScreenAssertPlainPath "$INSTDIR\' + $_ + '"' } | Set-Content -LiteralPath (Join-Path $projectRoot 'packaging/generated-paths.nsh') -Encoding UTF8
 # --prepackaged skips Electron application creation and preserves native DLL/EXE bytes.
-$cli = Join-Path $projectRoot 'node_modules/electron-builder/cli.js'
-& node $cli --projectDir $projectRoot --config (Join-Path $projectRoot 'electron-builder.yml') --prepackaged $prepackaged --win nsis --x64 --publish never
+$cli = Join-Path $projectRoot 'scripts/Build-XScreenInstaller.cjs'
+& node $cli
 if ($LASTEXITCODE -ne 0) { throw 'electron-builder failed.' }
+if (-not (Test-Path -LiteralPath (Join-Path $output 'static-build.json')) -or -not (Test-Path -LiteralPath $setup)) { throw 'Installer build did not complete; output is not releasable.' }
 foreach ($file in $manifest.files) {
     $relative = $file.path.Substring(8)
     if ((Get-Sha256 (Join-Path $prepackaged $relative)) -ne $file.sha256) { throw 'Builder modified the native payload.' }
 }
 if ((Get-ChildItem -LiteralPath $prepackaged -Recurse -File).Count -ne $manifest.files.Count) { throw 'Builder added unexpected application files.' }
-$report = [ordered]@{version=$Version;packager='electron-builder';packagerVersion='26.15.3';mode='prepackaged native WinUI';payloadFiles=$manifest.files.Count;payloadUnchanged=$true;setup=[IO.Path]::GetFileName($setup);sha256=(Get-Sha256 $setup);finalInstallerExecuted=$false;applicationExecuted=$false}
+$report = [ordered]@{version=$Version;installerRevision=2;packager='electron-builder';packagerVersion='26.15.3';mode='prepackaged native WinUI';payloadFiles=$manifest.files.Count;payloadUnchanged=$true;setup=[IO.Path]::GetFileName($setup);sha256=(Get-Sha256 $setup);uninstallerGeneration='static extraction';generatedExecutablesExecuted=0;finalInstallerExecuted=$false;applicationExecuted=$false}
 $report | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'verification.json') -Encoding UTF8
 Write-Output "Built native WinUI installer using electron-builder: $setup"

@@ -1,5 +1,6 @@
 appId: com.wyattcode.xscreen
 productName: XScreen
+buildVersion: 0.3.29.2
 # Framework metadata only. --prepackaged uses the native WinUI payload verbatim;
 # Electron is neither downloaded nor included in the application.
 electronVersion: 33.2.1
@@ -28,7 +29,8 @@ nsis:
   allowToChangeInstallationDirectory: true
   runAfterFinish: false
   createDesktopShortcut: false
-  createStartMenuShortcut: true
+  # Custom hooks check shortcut ownership before replacing/removing either link.
+  createStartMenuShortcut: false
   menuCategory: XScreen
   deleteAppDataOnUninstall: false
   packElevateHelper: false
