@@ -38,3 +38,9 @@
 **/runtime-data/
 *.user
 *.suo
+
+!/package.json
+!/package-lock.json
+!/electron-builder.yml
+**/node_modules/
+/packaging/generated-*.nsh

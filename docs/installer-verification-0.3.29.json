@@ -1,12 +1,15 @@
 {
   "version": "0.3.29",
-  "installer": "XScreen-0.3.29-Setup-x64.exe",
+  "packager": "electron-builder",
+  "packagerVersion": "26.15.3",
+  "mode": "prepackaged native WinUI",
   "payloadFiles": 521,
-  "payloadMatchesVerifiedZip": true,
-  "sha256": "2c54812737f53597a95a6be62a4a00bce5e8df88c251bea32b2349f487d06529",
-  "installerExecuted": false,
-  "nativeMonitorReads": 0,
-  "nativeMonitorWrites": 0,
-  "staticChecks": 536,
-  "staticFailures": 0
+  "payloadUnchanged": true,
+  "setup": "XScreen Setup 0.3.29.exe",
+  "sha256": "9827444c87ec5966d01f631dfeb02afbce7e3ec38039b8dda8593fdf366accfa",
+  "finalInstallerExecuted": false,
+  "applicationExecuted": false,
+  "staticChecks": 538,
+  "staticFailures": 0,
+  "blockmapChunksVerified": 3224
 }

@@ -1,41 +1,49 @@
-﻿param(
-    [string]$Compiler = "$PSScriptRoot/../.runtime/installer-tools/nsis-complete/Bin/makensis.exe",
-    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.29',
-    [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$RunName = ('installer-build-' + (Get-Date -Format 'yyyyMMdd-HHmmssfff'))
-)
+﻿param([ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.29')
 $ErrorActionPreference = 'Stop'
+function Get-Sha256([string]$FilePath) {
+    $stream = [IO.File]::OpenRead($FilePath); $hash = [Security.Cryptography.SHA256]::Create()
+    try { return ([BitConverter]::ToString($hash.ComputeHash($stream))).Replace('-', '').ToLowerInvariant() }
+    finally { $stream.Dispose(); $hash.Dispose() }
+}
 $projectRoot = [IO.Path]::GetFullPath("$PSScriptRoot/..")
-$release = Join-Path $projectRoot "artifacts/releases/v$Version"
-$payload = Join-Path $release 'stage/XScreen'
-$manifest = Get-Content -LiteralPath (Join-Path $release "XScreen-$Version-files.json") -Raw | ConvertFrom-Json
-if ($manifest.version -ne $Version) { throw 'Payload manifest version mismatch.' }
-$setup = Join-Path $release "XScreen-$Version-Setup-x64.exe"
-if (Test-Path -LiteralPath $setup) { throw 'Installer already exists; preserve prior delivery.' }
-$generated = Join-Path $projectRoot "artifacts/$RunName"
-if (Test-Path -LiteralPath $generated) { throw 'Installer build evidence already exists; preserve it.' }
-$null = New-Item -ItemType Directory -Path $generated
-$installLines = @(); $uninstallLines = @(); $directories = @()
+$oldRelease = Join-Path $projectRoot "artifacts/releases/v$Version"
+$source = Join-Path $oldRelease 'stage/XScreen'
+$manifest = Get-Content -LiteralPath (Join-Path $oldRelease "XScreen-$Version-files.json") -Raw | ConvertFrom-Json
+$metadata = Get-Content -LiteralPath (Join-Path $projectRoot 'package.json') -Raw | ConvertFrom-Json
+if ($metadata.version -ne $Version -or $manifest.version -ne $Version) { throw 'Version mismatch.' }
+$output = Join-Path $projectRoot 'release'
+$prepackaged = Join-Path $output 'win-unpacked'
+$setup = Join-Path $output "XScreen Setup $Version.exe"
+if ((Test-Path -LiteralPath $prepackaged) -or (Test-Path -LiteralPath $setup)) { throw 'Release output already exists; archive it before a new build.' }
+$null = New-Item -ItemType Directory -Path $prepackaged
+$remove = @(); $directories = @()
 foreach ($file in $manifest.files) {
-    if ($file.path -notmatch '^XScreen/[A-Za-z0-9_. /()-]+$' -or $file.path.Contains('..')) { throw "Unexpected payload path: $($file.path)" }
+    if ($file.path -notmatch '^XScreen/[A-Za-z0-9_. /()-]+$' -or $file.path.Contains('..')) { throw 'Unexpected payload path.' }
     $relative = $file.path.Substring(8).Replace('/', '\')
-    $source = Join-Path $payload $relative
-    if ((Get-Item -LiteralPath $source).Length -ne $file.length -or (Get-FileHash -LiteralPath $source).Hash.ToLowerInvariant() -ne $file.sha256) { throw "Payload differs from verified ZIP: $relative" }
+    $original = Join-Path $source $relative
+    if ((Get-Item -LiteralPath $original).Length -ne $file.length -or (Get-Sha256 $original) -ne $file.sha256) { throw "Verified payload mismatch: $relative" }
+    $destination = Join-Path $prepackaged $relative
+    $null = New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($destination)) -Force
+    Copy-Item -LiteralPath $original -Destination $destination
+    $remove += 'Delete "$INSTDIR\' + $relative + '"'
     $directory = [IO.Path]::GetDirectoryName($relative)
-    $installLines += 'SetOutPath "$INSTDIR' + $(if ($directory) { '\' + $directory }) + '"'
-    $installLines += 'File "' + $source + '"'
-    $uninstallLines += 'Delete "$INSTDIR\' + $relative + '"'
     while ($directory) { $directories += $directory; $directory = [IO.Path]::GetDirectoryName($directory) }
 }
-foreach ($directory in $directories | Select-Object -Unique | Sort-Object Length -Descending) { $uninstallLines += 'RMDir "$INSTDIR\' + $directory + '"' }
-$installFile = Join-Path $generated 'install-files.nsh'
-$uninstallFile = Join-Path $generated 'uninstall-files.nsh'
-$installLines | Set-Content -LiteralPath $installFile -Encoding UTF8
-$uninstallLines | Set-Content -LiteralPath $uninstallFile -Encoding UTF8
-$arguments = @('/V3', "/DAPP_VERSION=$Version", "/DSETUP_FILE=$setup", "/DAPP_ICON=$(Join-Path $payload 'Assets/XScreen.ico')", "/DINSTALL_FILES=$installFile", "/DUNINSTALL_FILES=$uninstallFile", (Join-Path $projectRoot 'packaging/XScreen.nsi'))
-& $Compiler @arguments 2>&1 | Tee-Object -FilePath (Join-Path $generated 'compiler.log')
-if ($LASTEXITCODE -ne 0) { throw 'NSIS compilation failed.' }
-if (!(Test-Path -LiteralPath $setup)) { throw 'Compiler did not produce an installer.' }
-$result = [ordered]@{ version=$Version; installer=[IO.Path]::GetFileName($setup); payloadFiles=$manifest.files.Count; payloadMatchesVerifiedZip=$true;
-    sha256=(Get-FileHash -LiteralPath $setup).Hash.ToLowerInvariant(); installerExecuted=$false; nativeMonitorReads=0; nativeMonitorWrites=0 }
-$result | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $generated 'build-report.json') -Encoding UTF8
-Write-Output "Built without executing installer: $setup"
+foreach ($directory in $directories | Select-Object -Unique | Sort-Object Length -Descending) { $remove += 'RMDir "$INSTDIR\' + $directory + '"' }
+$remove += 'Delete "$INSTDIR\Uninstall XScreen.exe"'
+$remove += 'Delete "$DESKTOP\XScreen.lnk"'
+$remove += 'SetOutPath "$TEMP"'
+$remove += 'RMDir "$INSTDIR"'
+$remove | Set-Content -LiteralPath (Join-Path $projectRoot 'packaging/generated-uninstall.nsh') -Encoding UTF8
+# --prepackaged skips Electron application creation and preserves native DLL/EXE bytes.
+$cli = Join-Path $projectRoot 'node_modules/electron-builder/cli.js'
+& node $cli --projectDir $projectRoot --config (Join-Path $projectRoot 'electron-builder.yml') --prepackaged $prepackaged --win nsis --x64 --publish never
+if ($LASTEXITCODE -ne 0) { throw 'electron-builder failed.' }
+foreach ($file in $manifest.files) {
+    $relative = $file.path.Substring(8)
+    if ((Get-Sha256 (Join-Path $prepackaged $relative)) -ne $file.sha256) { throw 'Builder modified the native payload.' }
+}
+if ((Get-ChildItem -LiteralPath $prepackaged -Recurse -File).Count -ne $manifest.files.Count) { throw 'Builder added unexpected application files.' }
+$report = [ordered]@{version=$Version;packager='electron-builder';packagerVersion='26.15.3';mode='prepackaged native WinUI';payloadFiles=$manifest.files.Count;payloadUnchanged=$true;setup=[IO.Path]::GetFileName($setup);sha256=(Get-Sha256 $setup);finalInstallerExecuted=$false;applicationExecuted=$false}
+$report | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $output 'verification.json') -Encoding UTF8
+Write-Output "Built native WinUI installer using electron-builder: $setup"

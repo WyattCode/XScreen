@@ -15,3 +15,5 @@
 验证结果：23场景428项UI检查、187项协议检查、25项交互状态检查、23项诊断检查，以及Acceptance和19项OfflineSafety回归全部通过，真实显示器读写0/0。发布包提供SHA256与逐文件清单。
 
 现已补充 **XScreen-0.3.29-Setup-x64.exe** 安装包：当前用户安装、开始菜单、可选桌面快捷方式和Windows卸载入口。安装完毕不自动启动。应用载荷与原ZIP一致，原ZIP保留。仅完成编译和静态检查，未安装运行。
+
+安装包流程现已对齐X-SSH：electron-builder 26.15.3 + NSIS，原生WinUI预打包。推荐下载 **XScreen-Setup-0.3.29.exe**（本地名 `XScreen Setup 0.3.29.exe`），支持安装目录选择，配套blockmap及latest.yml；原程序文件未变，完成页不自动启动。之前的手写NSIS安装包已标为旧版。

@@ -1,0 +1,40 @@
+appId: com.wyattcode.xscreen
+productName: XScreen
+# Framework metadata only. --prepackaged uses the native WinUI payload verbatim;
+# Electron is neither downloaded nor included in the application.
+electronVersion: 33.2.1
+npmRebuild: false
+asar: false
+compression: maximum
+directories:
+  output: release
+  buildResources: packaging
+publish:
+  provider: github
+  owner: WyattCode
+  repo: XScreen
+win:
+  executableName: XScreen
+  icon: src/XScreen.App/Assets/XScreen.ico
+  signAndEditExecutable: false
+  target:
+    - target: nsis
+      arch: x64
+nsis:
+  artifactName: ${productName} Setup ${version}.${ext}
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: true
+  runAfterFinish: false
+  createDesktopShortcut: false
+  createStartMenuShortcut: true
+  menuCategory: XScreen
+  deleteAppDataOnUninstall: false
+  packElevateHelper: false
+  differentialPackage: true
+  include: packaging/installer.nsh
+  installerIcon: src/XScreen.App/Assets/XScreen.ico
+  uninstallerIcon: src/XScreen.App/Assets/XScreen.ico
+  installerLanguages:
+    - zh_CN

@@ -4,7 +4,7 @@
 
 ## 下载与运行
 
-从本仓库 [Releases](https://github.com/WyattCode/XScreen/releases) 下载 **`XScreen-0.3.29-Setup-x64.exe`**，按向导安装。也保留 ZIP 便携版，完整解压后运行 `XScreen.exe`。这是私有仓库，仅授权账号能访问下载。
+从本仓库 [Releases](https://github.com/WyattCode/XScreen/releases) 下载 **`XScreen-Setup-0.3.29.exe`**，按向导安装。也保留 ZIP 便携版，完整解压后运行 `XScreen.exe`。这是私有仓库，仅授权账号能访问下载。
 
 当前版本 **0.3.29**。本地构建可运行根目录的 `运行XScreen.cmd`。启动只读取状态，不自动调节；不要直接运行 ZIP 内的 EXE。
 
@@ -71,4 +71,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Package-XScreen.ps1
 详见 [版本修复说明](docs/RELEASE-0.3.29.md) 和 [更新记录](CHANGELOG.md)。
 
 
-EXE安装器默认安装到当前用户的 `%LOCALAPPDATA%\Programs\XScreen`，提供开始菜单、可选桌面快捷方式和Windows卸载入口。安装/卸载前需从托盘退出XScreen；不会自动终止进程或启动程序。卸载仅移除安装清单中的文件，保留设置、日志和其他用户文件。详见[安装器构建与验证](docs/INSTALLER.md)。
+EXE采用electron-builder（与X-SSH一致）管理发布、NSIS向导安装，可选择安装目录。默认安装到当前用户的 `%LOCALAPPDATA%\Programs\XScreen`，提供开始菜单、可选桌面快捷方式和Windows卸载入口。安装/卸载前需从托盘退出XScreen；不会自动终止进程或启动程序。卸载仅移除安装清单中的文件，保留设置、日志和其他用户文件。详见[安装器构建与验证](docs/INSTALLER.md)。
+
+
+EXE发布流程：完成.NET构建、离线验证和ZIP打包后，运行 `npm ci --ignore-scripts`、`npm run dist`。生成 `release/win-unpacked`、`release/XScreen Setup 0.3.29.exe`、`.exe.blockmap`、`latest.yml`。这是原生WinUI文件的预打包，不包含Electron运行时；发布元数据不代表应用已实现自动更新。

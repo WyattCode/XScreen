@@ -1,0 +1,17 @@
+{
+  "name": "xscreen",
+  "version": "0.3.29",
+  "private": true,
+  "description": "WinUI 3 monitor controls for LG 32GX870A",
+  "author": "XScreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WyattCode/XScreen.git"
+  },
+  "scripts": {
+    "dist": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Build-XScreenInstaller.ps1"
+  },
+  "devDependencies": {
+    "electron-builder": "26.15.3"
+  }
+}

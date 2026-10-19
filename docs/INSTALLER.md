@@ -1,31 +1,40 @@
-# EXE 安装包
+# electron-builder EXE 发布
 
-`XScreen-0.3.29-Setup-x64.exe` 是带开始菜单、可选桌面快捷方式和Windows卸载入口的用户级安装器。默认目录为 `%LOCALAPPDATA%\Programs\XScreen`。无需安装.NET或Windows App SDK运行库，产品载荷为自包含发布。
-
-安装和卸载前请在托盘退出XScreen，安装器会检查应用单实例互斥体，拒绝覆盖运行中的程序。安装、完成页和卸载均不启动应用，不发送显示器命令。桌面快捷方式默认不选。卸载按521个已安装产品文件的清单删除，不递归清空目录，保留日志和用户偏好。
+按X-SSH项目的发布方式，使用 **electron-builder 26.15.3 + NSIS**，`oneClick: false`、`allowToChangeInstallationDirectory: true`，提供向导和目录选择。XScreen仍是C# / WinUI 3程序，构建使用 `--prepackaged` 包装已经验证的521个原生文件，不加入Electron运行时，不编辑原应用EXE。
 
 ## 构建
 
-先按README构建并打包已验证的ZIP载荷，再运行：
+按README完成.NET发布、离线回归和ZIP打包后运行：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Build-XScreenInstaller.ps1 -Compiler C:/path/to/NSIS/Bin/makensis.exe
+npm ci --ignore-scripts
+npm run dist
 ```
 
-使用NSIS Unicode编译器。本次采用Electron Builder分发的可移植工具，仅解包到工作区，未安装编译器。下载来源：
+输出与X-SSH相同的目录结构：
 
-https://github.com/electron-userland/electron-builder-binaries/releases/tag/nsis-3.0.4.1
+- `release/win-unpacked/`：原生产品文件。
+- `release/XScreen Setup 0.3.29.exe`：安装器。
+- `release/XScreen Setup 0.3.29.exe.blockmap`：分块信息。
+- `release/latest.yml`：发布文件名、SHA512和版本元数据。
+- `release/builder-debug.yml`：构建诊断。
 
-归档SHA256：`9877df902530f96357d13a7a31ae2b9df67f48b11ffc9a1700a7c961574ec5fa`。
+GitHub资产使用元数据中对应的安全文件名 `XScreen-Setup-0.3.29.exe` 和 `.exe.blockmap`，字节与本地带空格的文件名完全相同。软件本身未增加自动更新功能。
 
-脚本先逐文件核对已发布ZIP清单，生成独立的安装/卸载清单，再编译EXE并记录SHA256。不覆盖已存在的安装器。失败或再次构建使用新的RunName，保留先前证据。
+## 安装行为
 
-静态验证使用Python及pefile：
+当前用户安装，可选择目录，开始菜单入口，桌面快捷方式可选且默认不选。完成页不自动运行。安装/卸载检查XScreen互斥体，不调用默认taskkill流程，需由用户先从托盘退出。自定义卸载清单只移除521个已安装产品文件及卸载器，不递归清空目录，保留设置、日志和其他用户文件。
+
+兼容此前手写安装器：仅在其记录的目录与当前目标一致时，清理旧的产品卸载登记、旧卸载器和旧卸载快捷方式；不调用旧卸载器，不影响其他目录。
+
+## 验证边界
 
 ```powershell
-python scripts/Test-XScreenInstaller.py --build artifacts/<本次构建目录> --report artifacts/<新报告名>.json
+python scripts/Test-XScreenInstaller.py --report artifacts/installer-checks.json
 ```
 
-检查Windows PE、图标、版本、asInvoker权限、内部CRC、521个输入文件的大小/哈希、明确卸载清单和无自动启动动作。所有检查只读取文件；没有执行安装器、卸载器或应用，因此不代表真实安装/卸载验收。
+静态检查PE、图标、版本、权限、NSIS内部CRC、521个文件的大小/哈希、latest.yml SHA512、blockmap每个分块和卸载范围。测试依赖Python的pefile。
 
-应用程序和Core与既有0.3.29发布字节相同，23场景428项UI及协议/安全回归结果继续适用。新EXE另行提供SHA256；原ZIP不变。安装器未作代码签名。
+electron-builder构建阶段会生成卸载器辅助产物；没有执行最终安装程序或XScreen，没有安装、卸载或操作显示器。真实安装向导和安装/卸载验收仍由用户执行。应用与Core仍沿用原0.3.29字节及已有23场景428项UI回归。安装器未代码签名。
+
+此前直接手写NSIS的安装器是早期产物，当前推荐本页的electron-builder发布包。
