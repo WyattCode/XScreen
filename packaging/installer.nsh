@@ -52,10 +52,15 @@ Var XScreenOldDir
 
 !macro customCheckAppRunning
   !insertmacro StopIfXScreenRunning
+  !ifdef BUILD_UNINSTALLER
+    ; Silent un.onInit calls this before initMultiUser. Only the mutex can be
+    ; checked at that point; customUnInit validates the initialized directory.
+    ${If} $installMode != ""
+      Call un.XScreenValidateDirectory
+    ${EndIf}
+  !else
   Call ${XSCREEN_PREFIX}XScreenValidateDirectory
-  !ifndef BUILD_UNINSTALLER
-    ; The stock upgrade executes the registered old uninstaller. Validate that
-    ; old directory too, even when the user selected a different new location.
+    ; Validate the old directory before owned-file cleanup during an upgrade.
     ${If} $XScreenOldDir != ""
     ${AndIf} $XScreenOldDir != $INSTDIR
       StrCpy $XScreenTargetDir $INSTDIR

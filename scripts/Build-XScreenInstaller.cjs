@@ -18,7 +18,21 @@ async function main() {
   let uninstallerSha256;
   NsisTarget.prototype.computeScriptAndSignUninstaller = async function(defines, commands, installerPath, sharedHeader, archs) {
     if (this.options.script) throw new Error('Only the audited stock NSIS template is supported');
-    const script = await fs.readFile(path.join(nsisTemplatesDir, 'installer.nsi'), 'utf8');
+    const originalScript = await fs.readFile(path.join(nsisTemplatesDir, 'installer.nsi'), 'utf8');
+    const upgradeInclude = '!include "installUtil.nsh"';
+    if (originalScript.split(upgradeInclude).length !== 2)
+      throw new Error('Re-audit the stock installer upgrade include before building');
+    let installUtil = await fs.readFile(path.join(nsisTemplatesDir, 'include/installUtil.nsh'), 'utf8');
+    // Keep shared stock helpers, but remove the legacy process-launching function
+    // and its two private parsers. Do not leave dead executable code or suppress warnings.
+    for (const name of ['GetInQuotes', 'GetFileParent', 'uninstallOldVersion']) {
+      const block = new RegExp(`^Function ${name}\\r?\\n[\\s\\S]*?^FunctionEnd\\r?\\n`, 'gm');
+      if ([...installUtil.matchAll(block)].length !== 1)
+        throw new Error(`Re-audit the stock upgrade helper: ${name}`);
+      installUtil = installUtil.replace(block, '');
+    }
+    await fs.writeFile(path.join(root, 'packaging/generated-install-util.nsh'), installUtil);
+    const script = originalScript.replace(upgradeInclude, '!include "${XSCREEN_BUILD_RESOURCES}\\upgrade.nsh"');
     const uninstaller = path.join(this.outDir, `${path.basename(installerPath, 'exe')}__uninstaller.exe`);
     defines.BUILD_UNINSTALLER = null;
     defines.UNINSTALLER_OUT_FILE = uninstaller;
@@ -40,13 +54,15 @@ async function main() {
     targets: Platform.WINDOWS.createTarget(['nsis'], Arch.x64), publish: 'never'});
   if (extracted !== 1) throw new Error('Expected exactly one statically extracted uninstaller');
   const sources = ['electron-builder.yml', 'packaging/installer.nsh', 'packaging/functions.nsh',
-    'packaging/no-start.nsh', 'packaging/per-user.nsh', 'packaging/generated-paths.nsh',
-    'packaging/generated-uninstall.nsh', 'scripts/Build-XScreenInstaller.cjs', 'scripts/Build-XScreenInstaller.ps1'];
+    'packaging/no-start.nsh', 'packaging/per-user.nsh', 'packaging/upgrade.nsh', 'packaging/generated-paths.nsh',
+    'packaging/generated-uninstall.nsh', 'packaging/generated-install-util.nsh', 'tests/Fixtures/installer-upgrade-reference.json',
+    'scripts/Build-XScreenInstaller.cjs', 'scripts/Build-XScreenInstaller.ps1'];
   const sourceHashes = {};
   for (const name of sources) sourceHashes[name] = createHash('sha256').update(await fs.readFile(path.join(root, name))).digest('hex');
   await fs.writeFile(path.join(root, 'release/static-build.json'), JSON.stringify({
     builder: '26.15.3', uninstallerGeneration: 'UninstallerReader static extraction',
-    generatedExecutablesExecuted: 0, extractedUninstallers: extracted, uninstallerSha256, sourceHashes
+    generatedExecutablesExecuted: 0, extractedUninstallers: extracted, uninstallerSha256,
+    upgradePolicy: 'validated owned-file cleanup; no legacy uninstaller execution', sourceHashes
   }, null, 2));
 }
 main().catch(error => { console.error(error); process.exit(1); });

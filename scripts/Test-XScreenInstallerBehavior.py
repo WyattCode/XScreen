@@ -25,7 +25,7 @@ class Program:
         self.uninstall = uninstall
         self.defines = {'XSCREEN_PREFIX': 'un.' if uninstall else '',
             'XSCREEN_BUILD_RESOURCES': str(ROOT / 'packaging'),
-            'INSTALL_REGISTRY_KEY': 'Software\\XScreen-test', 'NSIS_MAX_STRLEN': '1024'}
+            'INSTALL_REGISTRY_KEY': 'Software\\XScreen-test', 'UNINSTALL_REGISTRY_KEY': 'Software\\XScreen-test-uninstall', 'NSIS_MAX_STRLEN': '1024'}
         if uninstall: self.defines['BUILD_UNINSTALLER'] = ''
         self.macros = {}
         source = (ROOT / 'packaging/installer.nsh').read_text(encoding='utf-8-sig')
@@ -131,6 +131,7 @@ class VM:
             parent = up
     def reg(self, path):
         self.registry[('HKCU', r'Software\XScreen-test', 'InstallLocation')] = path
+        self.registry[('HKCU', r'Software\XScreen-test-uninstall', 'DisplayVersion')] = '0.3.30'
     def exists(self, path):
         return key(path) in self.files or key(path) in self.links or key(path) in self.dirs
     def condition(self, parts):
@@ -231,6 +232,21 @@ def main(report):
         except Stopped: return
         raise AssertionError('Expected operation to stop')
     inst, uninst = Program(), Program(True)
+    stock_uninstaller=(ROOT/'node_modules/app-builder-lib/templates/nsis/uninstaller.nsh').read_text()
+    init_body=re.search(r'Function un.onInit\n(.*?)FunctionEnd',stock_uninstaller,re.S)[1]
+    assert init_body.index('call un.checkAppRunning') < init_body.index('!insertmacro initMultiUser') < init_body.index('!insertmacro customUnInit')
+    def silent_startup():
+        v=VM(uninst);v.v['$installMode']='';v.reg(v.v['$INSTDIR'])
+        v.macro('customCheckAppRunning');assert not v.operations and v.exitcode==0
+        v.v['$installMode']='CurrentUser';v.macro('customUnInit');assert not v.operations
+        v.v['$INSTDIR']=r'D:\Other\XScreen'
+        stopped(lambda:v.macro('customUnInit'));assert not v.operations
+    case('stock silent uninstaller pre-init check defers directory validation until initMultiUser',silent_startup)
+    def early_mutex(state):
+        v=VM(uninst);v.v['$installMode']='';v.mutex=state
+        stopped(lambda:v.macro('customCheckAppRunning'));assert not v.operations
+    case('silent pre-init still rejects running app',lambda:early_mutex(0))
+    case('silent pre-init still rejects inaccessible mutex',lambda:early_mutex(5))
     def directory(path, reject=False, prepare=lambda v: None, uninstall=False):
         vm = VM(uninst if uninstall else inst); vm.v['$INSTDIR'] = path; prepare(vm)
         action = lambda: vm.call(('un.' if uninstall else '')+'XScreenValidateDirectory')
@@ -318,6 +334,42 @@ def main(report):
     case('legacy migration preserves unrelated uninstall shortcut',lambda:legacy_migration(True))
     version=json.loads((ROOT/'package.json').read_text(encoding='utf-8-sig'))['version']
     manifest=json.loads((ROOT/f'artifacts/releases/v{version}/XScreen-{version}-files.json').read_text(encoding='utf-8-sig'))
+    upgrade_reference=json.loads((ROOT/'tests/Fixtures/installer-upgrade-reference.json').read_text())
+    current_paths={f['path'][8:] for f in manifest['files']}
+    assert set(upgrade_reference['ownedPaths']) <= current_paths
+    source=(ROOT/'packaging/functions.nsh').read_text(encoding='utf-8-sig')
+    approved=set(re.findall(r'\$0 != "(0\.3\.\d+)"',source))
+    assert approved==set(upgrade_reference['supportedVersions'])
+    def owned_upgrade(previous, moved=False, locked=None):
+        v=VM(inst);target=v.v['$INSTDIR'];old=r'D:\Old\XScreen' if moved else target
+        v.reg(old);v.registry[('HKCU',r'Software\XScreen-test-uninstall','DisplayVersion')]=previous
+        for f in manifest['files']:v.addfile(old+'\\'+f['path'][8:].replace('/','\\'))
+        v.addfile(old+r'\Uninstall XScreen.exe');v.addfile(old+r'\uninstallerIcon.ico')
+        retained=[old+r'\runtime-data\log.json',old+r'\personal.txt',r'C:\User\AppData\Local\XScreen\hotkeys.json']
+        for p in retained:v.addfile(p,'keep')
+        v.links[key(r'C:\User\Desktop\XScreen.lnk')]=old+r'\XScreen.exe'
+        v.macro('customInit');v.macro('customCheckAppRunning')
+        if locked:
+            v.locked.add(key(old+'\\'+locked));stopped(lambda:v.call('XScreenRemovePreviousVersion'))
+            assert v.registry and v.exitcode==2
+        else:
+            v.call('XScreenRemovePreviousVersion')
+            assert v.v['$INSTDIR']==target and v.v['$R0']=='0' and not v.error
+            assert len(v.files)==len(retained) and not v.links and v.registry
+            v.macro('customInstall');assert key(r'C:\User\Desktop\XScreen.lnk') in v.links
+        assert all(v.files.get(key(p))=='keep' for p in retained)
+    for previous in upgrade_reference['supportedVersions']:
+        case('owned-file upgrade bypasses broken legacy uninstaller '+previous,lambda p=previous:owned_upgrade(p))
+        case('directory-changing owned-file upgrade '+previous,lambda p=previous:owned_upgrade(p,True))
+    case('upgrade aborts on locked payload and retains registration',lambda:owned_upgrade('0.3.30',locked='XScreen.Core.dll'))
+    case('upgrade aborts on locked old uninstaller and retains registration',lambda:owned_upgrade('0.3.30',locked='Uninstall XScreen.exe'))
+    def unknown_upgrade():
+        v=VM(inst);v.reg(v.v['$INSTDIR']);v.registry[('HKCU',r'Software\XScreen-test-uninstall','DisplayVersion')]='9.9.9'
+        stopped(lambda:v.call('XScreenRemovePreviousVersion'));assert not v.operations and v.registry
+    case('unknown old version is rejected before mutation',unknown_upgrade)
+    def fresh_upgrade():
+        v=VM(inst);v.call('XScreenRemovePreviousVersion');assert not v.operations and v.v['$R0']=='0'
+    case('fresh install skips previous-file removal',fresh_upgrade)
     def removal(locked=False, unrelated=False):
         v=VM(uninst); v.reg(v.v['$INSTDIR'])
         for item in manifest['files']: v.addfile(v.v['$INSTDIR']+'\\'+item['path'][8:].replace('/','\\'))

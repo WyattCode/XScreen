@@ -1,0 +1,45 @@
+{
+  "version": "0.3.31",
+  "installerRevision": 1,
+  "installerFileVersion": "0.3.31.1",
+  "applicationPayloadChanged": false,
+  "payloadFiles": 523,
+  "staticChecks": 550,
+  "behaviorCases": 53,
+  "failures": 0,
+  "oldPreInitFailureReproduced": true,
+  "legacyUninstallerExecuted": false,
+  "installerExecuted": false,
+  "uninstallerExecuted": false,
+  "formalApplicationStarted": false,
+  "realRegistryWrites": 0,
+  "realMonitorReads": 0,
+  "realMonitorWrites": 0,
+  "assets": [
+    {
+      "name": "XScreen-Setup-0.3.31.exe",
+      "size": 67124803,
+      "sha256": "2e6b251aacb704ace9590d6b3c708dbfd8110f1c502c40d80477303860ca2a13"
+    },
+    {
+      "name": "XScreen-Setup-0.3.31.exe.blockmap",
+      "size": 71572,
+      "sha256": "3f9d58ca812b777a0f1a2df2cbeb1355f8930dad764ad2e26426b59c70bd614d"
+    },
+    {
+      "name": "latest.yml",
+      "size": 345,
+      "sha256": "442911448c204b1550be0927a511b0245801ad77b3b102f8f0ae31f7137c2999"
+    },
+    {
+      "name": "XScreen-0.3.31-win-x64.zip",
+      "size": 89453583,
+      "sha256": "7a3087f74d6843e8760f8d24cb1a4f2e643ee8bf21edd224ab3944c61f7c0026"
+    },
+    {
+      "name": "XScreen-0.3.31-files.json",
+      "size": 136735,
+      "sha256": "f28226e1b97392418a4bc9a894ef0b967e16620e34854c3a17261d5782e551a8"
+    }
+  ]
+}

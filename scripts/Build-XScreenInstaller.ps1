@@ -11,6 +11,11 @@ $source = Join-Path $oldRelease 'stage/XScreen'
 $manifest = Get-Content -LiteralPath (Join-Path $oldRelease "XScreen-$Version-files.json") -Raw | ConvertFrom-Json
 $metadata = Get-Content -LiteralPath (Join-Path $projectRoot 'package.json') -Raw | ConvertFrom-Json
 if ($metadata.version -ne $Version -or $manifest.version -ne $Version) { throw 'Version mismatch.' }
+$upgradeReference = Get-Content -LiteralPath (Join-Path $projectRoot 'tests/Fixtures/installer-upgrade-reference.json') -Raw | ConvertFrom-Json
+$currentOwnedPaths = @($manifest.files | ForEach-Object { $_.path.Substring(8) })
+if (@($upgradeReference.ownedPaths | Where-Object { $_ -cnotin $currentOwnedPaths }).Count -gt 0) {
+    throw 'Current removal list does not cover supported old payloads; re-audit upgrade ownership.'
+}
 $buildVersionMatch = Select-String -LiteralPath (Join-Path $projectRoot 'electron-builder.yml') -Pattern '^buildVersion:\s*(\d+\.\d+\.\d+\.\d+)\s*$'
 if (@($buildVersionMatch).Count -ne 1) { throw 'Missing installer file version.' }
 $installerFileVersion = $buildVersionMatch.Matches[0].Groups[1].Value
@@ -36,7 +41,7 @@ foreach ($file in $manifest.files) {
 }
 foreach ($directory in $directories | Select-Object -Unique | Sort-Object Length -Descending) { $remove += 'RMDir "$INSTDIR\' + $directory + '"' }
 $remove += '!insertmacro XScreenDeleteOwned "uninstallerIcon.ico"'
-$remove += 'Delete "$INSTDIR\Uninstall XScreen.exe"'
+$remove += '!insertmacro XScreenDeleteOwned "Uninstall XScreen.exe"'
 $remove += 'SetOutPath "$TEMP"'
 $remove += 'RMDir "$INSTDIR"'
 $remove | Set-Content -LiteralPath (Join-Path $projectRoot 'packaging/generated-uninstall.nsh') -Encoding UTF8

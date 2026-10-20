@@ -1,4 +1,37 @@
 ﻿; Emitted after the stock template declares installMode and FileFunc.
+!ifndef BUILD_UNINSTALLER
+Function XScreenRemovePreviousVersion
+  !insertmacro StopIfXScreenRunning
+  ${If} $installMode != "CurrentUser"
+    !insertmacro XScreenFail "仅允许升级当前用户的 XScreen 安装。"
+  ${EndIf}
+  ReadRegStr $XScreenOldDir HKCU "${INSTALL_REGISTRY_KEY}" "InstallLocation"
+  ${If} $XScreenOldDir == ""
+    ClearErrors
+    StrCpy $R0 0
+    Return
+  ${EndIf}
+  ReadRegStr $0 HKCU "${UNINSTALL_REGISTRY_KEY}" "DisplayVersion"
+  ${If} $0 != "0.3.29"
+  ${AndIf} $0 != "0.3.30"
+  ${AndIf} $0 != "0.3.31"
+    !insertmacro XScreenFail "无法确认旧安装的文件范围，已停止升级；不会运行未知的旧卸载器。"
+  ${EndIf}
+  StrCpy $XScreenTargetDir $INSTDIR
+  StrCpy $INSTDIR $XScreenOldDir
+  Call XScreenValidateDirectory
+  ; Supported previous payloads are subsets of this version's owned list.
+  ; Registration is kept on failure so the user can retry.
+  !include "${XSCREEN_BUILD_RESOURCES}\generated-uninstall.nsh"
+  !insertmacro XScreenDeleteShortcut "$DESKTOP\XScreen.lnk"
+  !insertmacro XScreenDeleteShortcut "$SMPROGRAMS\XScreen\XScreen.lnk"
+  RMDir "$SMPROGRAMS\XScreen"
+  StrCpy $INSTDIR $XScreenTargetDir
+  ClearErrors
+  StrCpy $R0 0
+FunctionEnd
+!endif
+
 Function ${XSCREEN_PREFIX}XScreenReadShortcut
   Push $0
   Push $1
