@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType><TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion><RuntimeIdentifier>win-x64</RuntimeIdentifier><PlatformTarget>x64</PlatformTarget>
@@ -6,7 +6,7 @@
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition><EnableDefaultPageItems>false</EnableDefaultPageItems>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>XScreen.Review</AssemblyName>
-    <XScreenVersion Condition="'$(XScreenVersion)' == ''">0.3.30</XScreenVersion>
+    <XScreenVersion Condition="'$(XScreenVersion)' == ''">0.3.31</XScreenVersion>
   </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Include="ReviewApp.xaml" />

@@ -1,6 +1,6 @@
 appId: com.wyattcode.xscreen
 productName: XScreen
-buildVersion: 0.3.30.0
+buildVersion: 0.3.31.0
 # Framework metadata only. --prepackaged uses the native WinUI payload verbatim;
 # Electron is neither downloaded nor included in the application.
 electronVersion: 33.2.1

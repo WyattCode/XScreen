@@ -1,5 +1,5 @@
-﻿param(
-    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.30',
+param(
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.31',
     [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$RunName = ('offline-ui-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
 )
 $ErrorActionPreference = 'Stop'
@@ -17,6 +17,7 @@ $outputDirectory = Join-Path $projectRoot "analysis/evidence/$RunName"
 if (Test-Path -LiteralPath $outputDirectory) { throw 'Choose a fresh run name; PNG evidence must never be overwritten.' }
 $null = New-Item -ItemType Directory -Path $outputDirectory
 $scenarios = [ordered]@{
+    'floating-notice' = '--floating-notice'
     'hotkey-audit' = '--hotkey-audit'
     hotkeys = '--hotkeys'
     'ui-alignment' = '--ui-alignment'

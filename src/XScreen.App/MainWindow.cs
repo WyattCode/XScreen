@@ -34,7 +34,7 @@ sealed partial class MainWindow : Window
     readonly TextBlock connection = Text("正在连接显示器…", 12), mode = Text("—", 24, true), contrast = Text("—", 24, true), black = Text("—", 24, true), lastRead = Text("尚未读取", 12);
     readonly Button refresh = Command("刷新", Symbol.Refresh);
     readonly Button reset = Command("重置设置", Symbol.Undo);
-    readonly InfoBar notice = new() { IsOpen = false, IsClosable = false };
+    readonly InfoBar notice = new() { IsOpen = false, IsClosable = true };
     readonly ComboBox appearance = new() { MinWidth = 150, SelectedIndex = 0 };
     readonly ScrollViewer scroll;
     readonly Image backdrop, logo;
@@ -74,7 +74,7 @@ sealed partial class MainWindow : Window
         backdrop = new() { Source = Asset("UltraGearBackdrop.png"), Stretch = Stretch.UniformToFill, IsHitTestVisible = false, Opacity = .65 };
         AutomationProperties.SetAccessibilityView(backdrop, Microsoft.UI.Xaml.Automation.Peers.AccessibilityView.Raw);
         root.Children.Add(backdrop); root.Children.Add(layout);
-        foreach (var h in new[] { GridLength.Auto, GridLength.Auto, new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto }) layout.RowDefinitions.Add(new() { Height = h });
+        foreach (var h in new[] { GridLength.Auto, new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto }) layout.RowDefinitions.Add(new() { Height = h });
         var header = new Grid { ColumnSpacing = 22, MinHeight = 82, Padding = new Thickness(0, 0, 0, 12), BorderBrush = Palette.Line, BorderThickness = new Thickness(0, 0, 0, 1) };
         foreach (var w in new[] { GridLength.Auto, new GridLength(1, GridUnitType.Star), GridLength.Auto }) header.ColumnDefinitions.Add(new() { Width = w });
         var brand = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 20, VerticalAlignment = VerticalAlignment.Center };
@@ -89,7 +89,6 @@ sealed partial class MainWindow : Window
         Grid.SetColumn(commands, 1); header.Children.Add(commands);
         var product = new StackPanel { Spacing = 2, VerticalAlignment = VerticalAlignment.Center, MinWidth = 200 };
         product.Children.Add(Text("32GX870A", 27, true)); product.Children.Add(connection); Grid.SetColumn(product, 2); header.Children.Add(product); layout.Children.Add(header);
-        Grid.SetRow(notice, 1); layout.Children.Add(notice);
         for (int i = 0; i < ControlSpec.Writable.Length; i++)
         {
             channels.ColumnDefinitions.Add(new() { Width = new GridLength(1, GridUnitType.Star) });
@@ -105,12 +104,12 @@ sealed partial class MainWindow : Window
         pages.Items.Add(quickPage); pages.Items.Add(picturePage); pages.SelectedItem = quickPage; AutomationProperties.SetName(pages, "控制页面");
         pages.SelectionChanged += (_, _) => { bool picture = pages.SelectedItem == picturePage; scroll.Visibility = picture ? Visibility.Collapsed : Visibility.Visible; advancedScroll.Visibility = picture ? Visibility.Visible : Visibility.Collapsed; if (statusShelf != null) statusShelf.Visibility = picture ? Visibility.Collapsed : Visibility.Visible; };
         pageHost.Children.Add(pages); Grid.SetRow(scroll, 1); pageHost.Children.Add(scroll); Grid.SetRow(advancedScroll, 1); pageHost.Children.Add(advancedScroll);
-        Grid.SetRow(pageHost, 2); layout.Children.Add(pageHost);
+        Grid.SetRow(pageHost, 1); layout.Children.Add(pageHost);
         var shelf = new Grid { ColumnSpacing = 28, MinHeight = 134, Padding = new Thickness(12, 18, 12, 12), BorderBrush = Palette.Line, BorderThickness = new Thickness(0, 1, 0, 1) };
         statusShelf = shelf;
         foreach (double w in new[] { .7, 1, 1, 1 }) shelf.ColumnDefinitions.Add(new() { Width = new GridLength(w, GridUnitType.Star) });
         var statusTitle = new StackPanel { Spacing = 6, VerticalAlignment = VerticalAlignment.Center }; statusTitle.Children.Add(Text("当前状态", 20, true)); statusTitle.Children.Add(lastRead); shelf.Children.Add(statusTitle);
-        AddStatus(shelf, 1, "画面模式", mode, "在画面与色彩中切换"); AddStatus(shelf, 2, "对比度", contrast, "当前受限，仅显示读取值"); AddStatus(shelf, 3, "黑色稳定器", black, "调节步长 5"); Grid.SetRow(shelf, 3); layout.Children.Add(shelf);
+        AddStatus(shelf, 1, "画面模式", mode, "在画面与色彩中切换"); AddStatus(shelf, 2, "对比度", contrast, "当前受限，仅显示读取值"); AddStatus(shelf, 3, "黑色稳定器", black, "调节步长 5"); Grid.SetRow(shelf, 2); layout.Children.Add(shelf);
         var footer = new Grid { ColumnSpacing = 12, MinHeight = 30 };
         foreach (var w in new[] { new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto }) footer.ColumnDefinitions.Add(new() { Width = w });
         appearance.Items.Add("UltraGear 深色"); appearance.Items.Add("UltraGear 浅色"); appearance.Items.Add("跟随 Windows"); AutomationProperties.SetName(appearance, "界面外观");
@@ -119,7 +118,8 @@ sealed partial class MainWindow : Window
         var menu = new MenuFlyout();
         var hotkeySettings = new MenuFlyoutItem { Text = "全局快捷键", Icon = new SymbolIcon(Symbol.Keyboard) }; hotkeySettings.Click += (_, _) => Track(ShowHotkeySettingsAsync()); menu.Items.Add(hotkeySettings);
         var quit = new MenuFlyoutItem { Text = "退出 XScreen", Icon = new SymbolIcon(Symbol.Cancel) }; quit.Click += (_, _) => Track(ExitAsync()); menu.Items.Add(quit); more.Flyout = menu;
-        Grid.SetColumn(more, 2); footer.Children.Add(more); Grid.SetRow(footer, 4); layout.Children.Add(footer);
+        Grid.SetColumn(more, 2); footer.Children.Add(more); Grid.SetRow(footer, 3); layout.Children.Add(footer);
+        ConfigureFloatingNotice(footer);
         // Use one WinUI layout for the title and icon instead of separate native caption metrics.
         titleBar.Title = Program.WindowTitle;
         titleBar.Resources["TitleBarIconMargin"] = new Thickness(0, 0, 8, 0);
@@ -393,7 +393,15 @@ sealed partial class MainWindow : Window
         if (refresh.Content is StackPanel content) content.Children.OfType<TextBlock>().Single().Text = halted && controller.CanReadAgain ? "重新读取" : "刷新";
     }
     void EnableControls(bool enabled) { foreach (var row in rows.Values) row.SetEnabled(enabled && !resetDialogOpen && !hotkeyDialogOpen && selected?.Supported == true); advanced?.SetAvailable(enabled && !resetDialogOpen && !hotkeyDialogOpen && !busy && !refreshing && selected?.Supported == true && !rows.Values.Any(r => r.Pending)); }
-    void ShowNotice(string title, string message, InfoBarSeverity severity) { notice.Title = title; notice.Message = message; notice.Severity = severity; notice.IsOpen = true; }
+    void ShowNotice(string title, string message, InfoBarSeverity severity)
+    {
+        // A secondary UI warning must not hide the cause or recovery guidance of
+        // an open hardware fault. Dismissal and successful recovery remain explicit.
+        if (halted && notice.IsOpen && notice.Severity == InfoBarSeverity.Error && severity != InfoBarSeverity.Error) return;
+        notice.Title = title; notice.Message = message; notice.Severity = severity; notice.IsOpen = true;
+        // Replacing a visible message must also return to its beginning.
+        noticeScroll.ChangeView(null, 0, null, true);
+    }
     void HideToTray() { if (native?.TrayAvailable == true) { SaveWindowState(); AppWindow.Hide(); } else ShowNotice("托盘暂不可用", "窗口将保持打开。可在更多操作中退出。", InfoBarSeverity.Informational); }
     void ShowTrayMenu(PointInt32 point)
     {

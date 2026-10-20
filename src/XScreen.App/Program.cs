@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Dispatching;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using XScreen.Core;
 
@@ -25,7 +25,7 @@ static class Program
             if (!first) { AppLog.Mode = "instance-forward"; AppLog.Write("entry", "Forwarding an interface request to the existing instance; no monitor transport constructed."); NativeWindow.BringExistingToFront(ShowTray); return; }
         }
         AppLog.Mode = RenderDirectory == null ? "live" : "offline-render";
-        AppLog.Write("entry", RenderDirectory == null ? "Starting XScreen 0.3.30 LIVE; startup performs reads only." : "Starting isolated offline rendering; WindowsMonitorTransport will not be constructed.");
+        AppLog.Write("entry", RenderDirectory == null ? "Starting XScreen 0.3.31 LIVE; startup performs reads only." : "Starting isolated offline rendering; WindowsMonitorTransport will not be constructed.");
         AppDomain.CurrentDomain.UnhandledException += (_, e) => AppLog.Write("fatal", e.ExceptionObject.ToString() ?? "Unknown failure");
         WinRT.ComWrappersSupport.InitializeComWrappers();
         Application.Start(parameters =>

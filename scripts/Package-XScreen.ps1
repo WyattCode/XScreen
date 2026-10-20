@@ -1,5 +1,5 @@
-﻿param(
-    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.30',
+param(
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.31',
     [string]$EvidenceDirectory = "$PSScriptRoot/../analysis/evidence/local-review"
 )
 $ErrorActionPreference = 'Stop'
@@ -8,7 +8,7 @@ $published = Join-Path $projectRoot "artifacts/XScreen-$Version-win-x64"
 $hostDirectory = Join-Path $projectRoot "artifacts/XScreen-regression-$Version"
 $evidence = [IO.Path]::GetFullPath($EvidenceDirectory)
 $summary = Get-Content -LiteralPath (Join-Path $evidence 'summary.json') -Raw | ConvertFrom-Json
-if ($summary.Count -lt 23 -or @($summary | Where-Object { $_.exitCode -ne 0 -or $_.failures -ne 0 -or $_.nativeReads -ne 0 -or $_.nativeWrites -ne 0 }).Count -gt 0) { throw 'Complete passing fake-only UI evidence is required before packaging.' }
+if ($summary.Count -lt 24 -or @($summary | Where-Object { $_.scenario -eq 'floating-notice' }).Count -ne 1 -or @($summary | Where-Object { $_.exitCode -ne 0 -or $_.failures -ne 0 -or $_.nativeReads -ne 0 -or $_.nativeWrites -ne 0 }).Count -gt 0) { throw 'Complete passing fake-only UI evidence including floating notices is required before packaging.' }
 foreach ($assembly in @('XScreen.dll', 'XScreen.Core.dll')) {
     if ((Get-FileHash -LiteralPath (Join-Path $published $assembly)).Hash -ne (Get-FileHash -LiteralPath (Join-Path $hostDirectory $assembly)).Hash) { throw "Tested and published assembly mismatch: $assembly" }
 }

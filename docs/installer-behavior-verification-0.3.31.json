@@ -1,0 +1,171 @@
+{
+  "cases": 40,
+  "failures": 0,
+  "mode": "NSIS source VM, mocked OS boundaries",
+  "installerExecutions": 0,
+  "realRegistryWrites": 0,
+  "realMonitorReads": 0,
+  "realMonitorWrites": 0,
+  "results": [
+    {
+      "name": "accept dedicated local path D:\\Apps\\XScreen",
+      "passed": true
+    },
+    {
+      "name": "accept dedicated local path D:\\中文 软件\\XScreen",
+      "passed": true
+    },
+    {
+      "name": "accept dedicated local path d:\\apps\\xscreen\\",
+      "passed": true
+    },
+    {
+      "name": "accept dedicated local path D:\\Apps\\XScreen\\..\\XScreen",
+      "passed": true
+    },
+    {
+      "name": "reject unsafe/ambiguous path D:\\",
+      "passed": true
+    },
+    {
+      "name": "reject unsafe/ambiguous path ..\\XScreen",
+      "passed": true
+    },
+    {
+      "name": "reject unsafe/ambiguous path \\\\server\\share\\XScreen",
+      "passed": true
+    },
+    {
+      "name": "reject unsafe/ambiguous path C:\\Windows\\Apps\\XScreen",
+      "passed": true
+    },
+    {
+      "name": "reject unsafe/ambiguous path D:\\Apps\\MyXScreenTools",
+      "passed": true
+    },
+    {
+      "name": "reject unregistered nonempty target",
+      "passed": true
+    },
+    {
+      "name": "accept registered existing installation with logs",
+      "passed": true
+    },
+    {
+      "name": "reject junction ancestor",
+      "passed": true
+    },
+    {
+      "name": "reject nested payload junction",
+      "passed": true
+    },
+    {
+      "name": "reject unregister/mismatched uninstall directory",
+      "passed": true
+    },
+    {
+      "name": "accept registered uninstall directory",
+      "passed": true
+    },
+    {
+      "name": "accept matching handwritten installation",
+      "passed": true
+    },
+    {
+      "name": "running or inaccessible app mutex rejects mutation 0",
+      "passed": true
+    },
+    {
+      "name": "running or inaccessible app mutex rejects mutation 5",
+      "passed": true
+    },
+    {
+      "name": "fresh desktop choice defaults off",
+      "passed": true
+    },
+    {
+      "name": "upgrade preserves existing desktop choice",
+      "passed": true
+    },
+    {
+      "name": "upgrade respects user-deleted desktop link",
+      "passed": true
+    },
+    {
+      "name": "unrelated desktop link does not imply selection",
+      "passed": true
+    },
+    {
+      "name": "reject start menu collision before old uninstall",
+      "passed": true
+    },
+    {
+      "name": "reject selected desktop collision before old uninstall",
+      "passed": true
+    },
+    {
+      "name": "old uninstaller cannot delete unchecked unrelated desktop link",
+      "passed": true
+    },
+    {
+      "name": "directory-changing upgrade validates old payload junctions too",
+      "passed": true
+    },
+    {
+      "name": "reject redirected per-app shortcut folder",
+      "passed": true
+    },
+    {
+      "name": "reject machine-wide install before changing files",
+      "passed": true
+    },
+    {
+      "name": "reject unsupported Windows before changing files",
+      "passed": true
+    },
+    {
+      "name": "install creates selected desktop and start menu links",
+      "passed": true
+    },
+    {
+      "name": "unchecking desktop removes only owned old shortcut",
+      "passed": true
+    },
+    {
+      "name": "shortcut creation failure is reported",
+      "passed": true
+    },
+    {
+      "name": "identical-path legacy migration removes obsolete registration and link",
+      "passed": true
+    },
+    {
+      "name": "legacy migration preserves unrelated uninstall shortcut",
+      "passed": true
+    },
+    {
+      "name": "uninstall removes owned files/icon/links and preserves data",
+      "passed": true
+    },
+    {
+      "name": "uninstall preserves unrelated same-name shortcuts",
+      "passed": true
+    },
+    {
+      "name": "locked payload stops uninstall before registry/shortcut removal",
+      "passed": true
+    },
+    {
+      "name": "retry removal tolerates already missing payload files",
+      "passed": true
+    },
+    {
+      "name": "directory-changing upgrade retains choice and retargets links",
+      "passed": true
+    },
+    {
+      "name": "force-run macro has no executable launch instruction",
+      "passed": true
+    }
+  ]
+}

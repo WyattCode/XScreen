@@ -1,0 +1,356 @@
+{
+  "version": "0.3.31",
+  "uiScenarios": 24,
+  "uiChecks": 720.0,
+  "trayChecks": 139,
+  "protocolChecks": 187,
+  "interactionChecks": 25,
+  "diagnosticChecks": [
+    {
+      "name": "Successful adjustment forwards exactly one pre-read, write, readback and close",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Tracing adds no I/O or overlapping calls",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Trace distinguishes write intent, write entry and returned readback values",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "One transaction has one connection identity and a hashed device key",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Per-call timing preserves controller verification delay without inventing a new delay",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "A same-value request is recorded without falsely reporting a transport write",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Volume53-to44 failure retains checksum code and pre-write classification",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Pre-write checksum failure causes no write, retry or restore",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "An observer changing last-error state cannot corrupt the already captured native reply",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Fault-latched requests never reach even the tracing transport",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "A failing diagnostic observer cannot interrupt successful write verification",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Logging failure does not mask the original read fault or prevent disposal",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "A backend write exception remains an uncertain attempted write, with its original exception traced",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "A thrown write is not retried or followed by a hidden recovery action",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "A thrown post-write read retains the attempted-write boundary and terminal latch",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Passive trace exposes deliberately overlapping fake calls instead of hiding them behind a new lock",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Concurrent fixture trace has unique sequence identities and idempotent wrapper disposal",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Parallel log writers keep all200 JSON records intact and ordered",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Canonical records preserve mode, process identity and escaped multiline text",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "When the shared legacy log is locked, the independent session still preserves the event",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "An unwritable log destination is nonfatal and does not alter the conflicting file",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "Two real offline test processes retain separate complete session logs in a shared output folder",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "All diagnostics checks use fake calls and file I/O only, with zero native monitor access",
+      "passed": true,
+      "detail": null
+    }
+  ],
+  "safetyChecks": 19,
+  "acceptancePassed": true,
+  "installerChecks": 547,
+  "installerBehaviorCases": 40,
+  "failures": 0,
+  "formalApplicationStarted": false,
+  "installerExecuted": false,
+  "uninstallerExecuted": false,
+  "realMonitorReads": 0,
+  "realMonitorWrites": 0,
+  "uiResults": [
+    {
+      "scenario": "floating-notice",
+      "exitCode": 0,
+      "checks": 292,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "hotkey-audit",
+      "exitCode": 0,
+      "checks": 14,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "hotkeys",
+      "exitCode": 0,
+      "checks": 49,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "ui-alignment",
+      "exitCode": 0,
+      "checks": 51,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "window-state",
+      "exitCode": 0,
+      "checks": 29,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "reset-settings",
+      "exitCode": 0,
+      "checks": 14,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-reset",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-reset-review",
+      "exitCode": 0,
+      "checks": 2,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "osd-synchronization",
+      "exitCode": 0,
+      "checks": 16,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "osd-fault-name",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "osd-controls",
+      "exitCode": 0,
+      "checks": 30,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-osd-apply",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "osd-comparison",
+      "exitCode": 0,
+      "checks": 18,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "tray-steps",
+      "exitCode": 0,
+      "checks": 23,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "appearance-recovery",
+      "exitCode": 0,
+      "checks": 35,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "lifecycle",
+      "exitCode": 0,
+      "checks": 16,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "audit",
+      "exitCode": 0,
+      "checks": 27,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "menu",
+      "exitCode": 0,
+      "checks": 24,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "core",
+      "exitCode": 0,
+      "checks": 34,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "ui",
+      "exitCode": 0,
+      "checks": 21,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "close-startup",
+      "exitCode": 0,
+      "checks": 5,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "close-write",
+      "exitCode": 0,
+      "checks": 5,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-editor",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-startup",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    }
+  ],
+  "assets": [
+    {
+      "name": "XScreen-Setup-0.3.31.exe",
+      "size": 67108760,
+      "sha256": "a6490ee0b388002e98a75305830a9d91b8d6ae830306dc6c37b1f06987b84b4c"
+    },
+    {
+      "name": "XScreen-Setup-0.3.31.exe.blockmap",
+      "size": 71674,
+      "sha256": "43e05e5add7c6d2030120a275b4a2ba6d432654e0b7ee6d0d505ac1a6df04d6e"
+    },
+    {
+      "name": "latest.yml",
+      "size": 345,
+      "sha256": "53d8f339d75287df3b85558531632864beac9ecf93f2e3186fd5761a2ba91659"
+    },
+    {
+      "name": "XScreen-0.3.31-win-x64.zip",
+      "size": 89453583,
+      "sha256": "7a3087f74d6843e8760f8d24cb1a4f2e643ee8bf21edd224ab3944c61f7c0026"
+    },
+    {
+      "name": "XScreen-0.3.31-files.json",
+      "size": 136735,
+      "sha256": "f28226e1b97392418a4bc9a894ef0b967e16620e34854c3a17261d5782e551a8"
+    }
+  ]
+}

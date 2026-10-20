@@ -1,4 +1,4 @@
-﻿param([string]$OutputDirectory = "$PSScriptRoot/../artifacts/XScreen-0.3.30-win-x64")
+param([string]$OutputDirectory = "$PSScriptRoot/../artifacts/XScreen-0.3.31-win-x64")
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath("$PSScriptRoot/..")
 $output = [IO.Path]::GetFullPath($OutputDirectory)

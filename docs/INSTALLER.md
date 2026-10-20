@@ -14,12 +14,12 @@ npm run dist
 输出与X-SSH相同的目录结构：
 
 - `release/win-unpacked/`：原生产品文件。
-- `release/XScreen Setup 0.3.30.exe`：安装器。
-- `release/XScreen Setup 0.3.30.exe.blockmap`：分块信息。
+- `release/XScreen Setup 0.3.31.exe`：安装器。
+- `release/XScreen Setup 0.3.31.exe.blockmap`：分块信息。
 - `release/latest.yml`：发布文件名、SHA512和版本元数据。
 - `release/builder-debug.yml`：构建诊断。
 
-GitHub资产使用元数据中对应的安全文件名 `XScreen-Setup-0.3.30.exe` 和 `.exe.blockmap`，字节与本地带空格的文件名完全相同。软件本身未增加自动更新功能。
+GitHub资产使用元数据中对应的安全文件名 `XScreen-Setup-0.3.31.exe` 和 `.exe.blockmap`，字节与本地带空格的文件名完全相同。软件本身未增加自动更新功能。
 
 ## 安装行为
 
@@ -44,7 +44,7 @@ python scripts/Test-XScreenInstallerBehavior.py --report artifacts/installer-beh
 
 行为回归通过有限的 NSIS 源码解释器执行实际宏、分支、循环和生成的卸载清单，仅替换 Win32/COM、注册表、文件系统边界。覆盖目录、旧目录升级、快捷方式选择/冲突/失败、占用删除失败、数据保留和卸载登记校验。解释器不模拟完整 Windows Shell、ACL、UAC 或真实的 NSIS 向导。
 
-当前安装器和应用文件版本为 **0.3.30.0**。安装器载荷与本版已验证的ZIP清单逐项一致；此前0.3.29安装器修订2保留在对应历史发布页。构建使用 electron-builder 内置 `UninstallerReader` 静态提取卸载器，禁止执行生成器或回退到 Wine/VM 执行。`release/static-build.json` 保存提取证据和源码哈希；`uninstaller-evidence.bin` 仅供 CRC 检查，不是提供给用户运行的卸载入口。
+当前安装器和应用文件版本为 **0.3.31.0**。安装器载荷与本版已验证的ZIP清单逐项一致；此前0.3.29安装器修订2保留在对应历史发布页。构建使用 electron-builder 内置 `UninstallerReader` 静态提取卸载器，禁止执行生成器或回退到 Wine/VM 执行。`release/static-build.json` 保存提取证据和源码哈希；`uninstaller-evidence.bin` 仅供 CRC 检查，不是提供给用户运行的卸载入口。
 
 本轮只编译与离线回归，没有执行生成的安装器、卸载器或 XScreen，没有安装、卸载或操作显示器。真实安装向导、系统 Shell 快捷方式、权限和安装/卸载验收仍需用户执行；离线结果不宣称完成真实安装验证。本版对实际发布程序集运行假设备UI回归宿主，正式应用入口没有启动。安装器未代码签名。
 

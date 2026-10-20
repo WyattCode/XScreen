@@ -1,4 +1,4 @@
-﻿param([ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.30')
+param([ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.31')
 $ErrorActionPreference = 'Stop'
 function Get-Sha256([string]$FilePath) {
     $stream = [IO.File]::OpenRead($FilePath); $hash = [Security.Cryptography.SHA256]::Create()

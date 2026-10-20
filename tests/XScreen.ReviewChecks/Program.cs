@@ -26,11 +26,13 @@ static class ReviewProgram
     public static bool TrayAudit;
     public static bool TrayLifecycle;
     public static bool AppearanceRecovery, PlacementPreparedBeforeShow;
+    public static bool FloatingNotice;
     [STAThread]
     static void Main(string[] args)
     {
-        if (args.Length != 1 && !(args.Length == 2 && args[1] is "--hotkey-audit" or "--hotkeys" or "--ui-alignment" or "--window-state" or "--exit-during-startup" or "--close-during-startup" or "--close-during-write" or "--ui-details" or "--exit-with-editor" or "--tray-menu" or "--tray-audit" or "--tray-lifecycle" or "--appearance-recovery" or "--tray-steps" or "--osd-comparison" or "--osd-controls" or "--exit-osd-apply" or "--osd-fault-name" or "--osd-synchronization" or "--reset-settings" or "--exit-reset" or "--exit-reset-review")) throw new ArgumentException("Provide an offline report path and an optional regression scenario.");
+        if (args.Length != 1 && !(args.Length == 2 && args[1] is "--floating-notice" or "--hotkey-audit" or "--hotkeys" or "--ui-alignment" or "--window-state" or "--exit-during-startup" or "--close-during-startup" or "--close-during-write" or "--ui-details" or "--exit-with-editor" or "--tray-menu" or "--tray-audit" or "--tray-lifecycle" or "--appearance-recovery" or "--tray-steps" or "--osd-comparison" or "--osd-controls" or "--exit-osd-apply" or "--osd-fault-name" or "--osd-synchronization" or "--reset-settings" or "--exit-reset" or "--exit-reset-review")) throw new ArgumentException("Provide an offline report path and an optional regression scenario.");
         ReportPath = Path.GetFullPath(args[0]);
+        FloatingNotice = args.Length == 2 && args[1] == "--floating-notice";
         HotkeyAudit = args.Length == 2 && args[1] == "--hotkey-audit";
         Hotkeys = args.Length == 2 && args[1] == "--hotkeys";
         WindowState = args.Length == 2 && args[1] == "--window-state";
@@ -85,6 +87,7 @@ public sealed partial class ReviewApplication : Application
         placement?.Invoke(window, null);
         ReviewProgram.PlacementPreparedBeforeShow = placement != null && !window.AppWindow.IsVisible;
         window.Activate();
+        if (ReviewProgram.FloatingNotice) { window.DispatcherQueue.TryEnqueue(async () => await RunFloatingNotice()); return; }
         window.DispatcherQueue.TryEnqueue(async () => { if (ReviewProgram.HotkeyAudit) await RunHotkeyAudit(); else if (ReviewProgram.Hotkeys) await RunHotkeys(); else if (ReviewProgram.UiAlignment) await RunUiAlignment(); else if (ReviewProgram.WindowState) await RunWindowState(); else if (ReviewProgram.ExitResetReview) await RunExitResetReview(); else if (ReviewProgram.ResetSettings) await RunResetSettings(); else if (ReviewProgram.ExitReset) await RunExitReset(); else if (ReviewProgram.OsdSynchronization) await RunOsdSynchronization(); else if (ReviewProgram.OsdFaultName) await RunOsdFaultName(); else if (ReviewProgram.ExitOsdApply) await RunExitOsdApply(); else if (ReviewProgram.OsdControls) await RunOsdControls(); else if (ReviewProgram.OsdComparison) await RunOsdComparison(); else if (ReviewProgram.TraySteps) await RunTraySteps(); else if (ReviewProgram.AppearanceRecovery) await RunAppearanceRecovery(); else if (ReviewProgram.TrayLifecycle) await RunTrayLifecycle(); else if (ReviewProgram.TrayAudit) await RunTrayAudit(); else if (ReviewProgram.TrayMenu) await RunTrayMenu(); else if (ReviewProgram.ExitWithEditor) await RunExitWithEditor(); else if (ReviewProgram.UiDetails) await RunUiDetails(); else if (ReviewProgram.CloseScenario.Length > 0) await RunSystemClose(); else if (ReviewProgram.StartupExit) await RunStartupExit(); else await Run(); });
     }
     void Check(bool passed, string name, object? details = null)
