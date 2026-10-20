@@ -6,13 +6,13 @@ namespace XScreen.App;
 sealed class NativeWindow : IDisposable
 {
     const uint TrayMessage = 0x8001;
+    const nuint RecoveryTimer = 0x58534352;
     readonly IntPtr hwnd;
     readonly SubclassProc callback;
     readonly uint taskbarCreated = RegisterWindowMessage("TaskbarCreated");
-    NotifyData icon;
+    NotificationIcon? icon;
     bool disposed;
-    bool ownedIcon;
-    public bool TrayAvailable { get; private set; }
+    public bool TrayAvailable => icon?.Available == true;
     public event Action? OpenRequested;
     public event Action<PointInt32>? ContextMenuRequested;
     public NativeWindow(IntPtr handle, string iconPath)
@@ -20,24 +20,19 @@ sealed class NativeWindow : IDisposable
         hwnd = handle;
         callback = WindowProc;
         if (!SetWindowSubclass(hwnd, callback, 1, 0)) throw new InvalidOperationException("无法初始化托盘窗口。");
-        var image = LoadImage(IntPtr.Zero, iconPath, 1, 32, 32, 0x10);
-        ownedIcon = image != IntPtr.Zero;
-        if (!ownedIcon) image = LoadIcon(IntPtr.Zero, (IntPtr)32512);
-        icon = new NotifyData { Size = (uint)Marshal.SizeOf<NotifyData>(), Window = hwnd, Id = 1,
-            Flags = 1 | 2 | 4, Callback = TrayMessage, Icon = image, Tip = "XScreen · 显示器控制",
-            Info = "", InfoTitle = "" };
-        AddIcon();
-    }
-    void AddIcon()
-    {
-        TrayAvailable = Shell_NotifyIcon(0, ref icon);
-        if (TrayAvailable) { icon.Version = 4; Shell_NotifyIcon(4, ref icon); }
-        else AppLog.Write("tray", "Shell_NotifyIcon failed: " + Marshal.GetLastWin32Error());
+        try
+        {
+            icon = new(new TrayPlatform(hwnd), hwnd, TrayMessage, iconPath, message => AppLog.Write("tray", message));
+            if (disposed) icon.Dispose(); // A native teardown may reenter initialization.
+        }
+        catch { disposed = true; KillTimer(hwnd, RecoveryTimer); RemoveWindowSubclass(hwnd, callback, 1); throw; }
     }
     IntPtr WindowProc(IntPtr h, uint message, IntPtr w, IntPtr l, nuint id, nuint data)
     {
         try
         {
+            if (message == 0x0082) { Dispose(); return DefSubclassProc(h, message, w, l); } // WM_NCDESTROY
+            if (disposed) return DefSubclassProc(h, message, w, l);
             if (message == TrayMessage)
             {
                 int action = (int)((long)l & 0xffff);
@@ -47,7 +42,9 @@ sealed class NativeWindow : IDisposable
             }
             if (message == 0x8002) { OpenRequested?.Invoke(); return IntPtr.Zero; }
             if (message == 0x8003) { ContextMenuRequested?.Invoke(GetTrayAnchor()); return IntPtr.Zero; }
-            if (message == taskbarCreated) AddIcon();
+            if (taskbarCreated != 0 && message == taskbarCreated) icon?.Recreate();
+            if (message is 0x02e0 or 0x001a or 0x007e) icon?.RefreshForDisplay();
+            if (message == 0x0113 && (nuint)w == RecoveryTimer) { icon?.Recover(); return IntPtr.Zero; }
         }
         catch (Exception ex) { AppLog.Write("window-message", ex.ToString()); }
         return DefSubclassProc(h, message, w, l);
@@ -77,20 +74,29 @@ sealed class NativeWindow : IDisposable
     {
         if (disposed) return;
         disposed = true;
-        if (TrayAvailable) Shell_NotifyIcon(2, ref icon);
-        RemoveWindowSubclass(hwnd, callback, 1);
-        if (ownedIcon) DestroyIcon(icon.Icon);
+        try { icon?.Dispose(); }
+        finally { KillTimer(hwnd, RecoveryTimer); RemoveWindowSubclass(hwnd, callback, 1); }
     }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    struct NotifyData
+    sealed class TrayPlatform(IntPtr owner) : INotificationIconPlatform
     {
-        public uint Size; public IntPtr Window; public uint Id, Flags, Callback; public IntPtr Icon;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string Tip;
-        public uint State, StateMask;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)] public string Info;
-        public uint Version;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)] public string InfoTitle;
-        public uint InfoFlags; public Guid Guid; public IntPtr BalloonIcon;
+        public int SmallIconPixels
+        {
+            get
+            {
+                var taskbar = FindWindow("Shell_TrayWnd", null);
+                uint dpi = GetDpiForWindow(taskbar != IntPtr.Zero ? taskbar : owner);
+                if (dpi == 0) dpi = 96;
+                return Math.Max(GetSystemMetricsForDpi(49, dpi), GetSystemMetricsForDpi(50, dpi));
+            }
+        }
+        public IntPtr Load(string path, int pixels) => LoadImage(IntPtr.Zero, path, 1, pixels, pixels, 0x10);
+        public IntPtr Fallback() => LoadIcon(IntPtr.Zero, (IntPtr)32512);
+        public bool Notify(uint message, ref NotificationIconData data) => Shell_NotifyIcon(message, ref data);
+        public void Destroy(IntPtr image) => DestroyIcon(image);
+        // Shell-only recovery. No monitor connection, refresh or setting action.
+        public bool SetRecoveryTimer(bool enabled) => enabled
+            ? SetTimer(owner, RecoveryTimer, 5000, IntPtr.Zero) != 0
+            : KillTimer(owner, RecoveryTimer);
     }
     [StructLayout(LayoutKind.Sequential)] struct Point { public int X, Y; }
     [StructLayout(LayoutKind.Sequential)] struct Rect { public int Left, Top, Right, Bottom; }
@@ -99,7 +105,11 @@ sealed class NativeWindow : IDisposable
     [DllImport("comctl32.dll")] static extern bool SetWindowSubclass(IntPtr hwnd, SubclassProc proc, nuint id, nuint data);
     [DllImport("comctl32.dll")] static extern bool RemoveWindowSubclass(IntPtr hwnd, SubclassProc proc, nuint id);
     [DllImport("comctl32.dll")] static extern IntPtr DefSubclassProc(IntPtr hwnd, uint message, IntPtr w, IntPtr l);
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern bool Shell_NotifyIcon(uint message, ref NotifyData data);
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern bool Shell_NotifyIcon(uint message, ref NotificationIconData data);
+    [DllImport("user32.dll")] static extern uint GetDpiForWindow(IntPtr hwnd);
+    [DllImport("user32.dll")] static extern int GetSystemMetricsForDpi(int index, uint dpi);
+    [DllImport("user32.dll")] static extern nuint SetTimer(IntPtr hwnd, nuint id, uint milliseconds, IntPtr callback);
+    [DllImport("user32.dll")] static extern bool KillTimer(IntPtr hwnd, nuint id);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr LoadImage(IntPtr instance, string path, uint type, int cx, int cy, uint flags);
     [DllImport("user32.dll")] static extern IntPtr LoadIcon(IntPtr instance, IntPtr name);
     [DllImport("user32.dll")] static extern bool DestroyIcon(IntPtr icon);
@@ -108,7 +118,7 @@ sealed class NativeWindow : IDisposable
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hwnd);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hwnd, int command);
     [DllImport("user32.dll")] static extern bool IsIconic(IntPtr hwnd);
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindow(string? className, string title);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindow(string? className, string? title);
     [DllImport("user32.dll")] static extern bool PostMessage(IntPtr hwnd, uint message, IntPtr w, IntPtr l);
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern uint RegisterWindowMessage(string message);
 }

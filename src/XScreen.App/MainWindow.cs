@@ -164,10 +164,17 @@ sealed partial class MainWindow : Window
             if (ready) return; ready = true; PrepareInitialPlacement();
             if (!renderOnly)
             {
-                native = new NativeWindow(WinRT.Interop.WindowNative.GetWindowHandle(this), Path.Combine(AppContext.BaseDirectory, "Assets", "XScreen.ico"));
-                native.OpenRequested += ShowWindow;
-                native.ContextMenuRequested += point => DispatcherQueue.TryEnqueue(() => ShowTrayMenu(point));
-
+                try
+                {
+                    native = new NativeWindow(WinRT.Interop.WindowNative.GetWindowHandle(this), Path.Combine(AppContext.BaseDirectory, "Assets", "XScreen.Tray.ico"));
+                    native.OpenRequested += ShowWindow;
+                    native.ContextMenuRequested += point => DispatcherQueue.TryEnqueue(() => ShowTrayMenu(point));
+                }
+                catch (Exception ex)
+                {
+                    AppLog.Write("tray-init", ex.ToString());
+                    ShowNotice("托盘初始化失败", "窗口将保持可用，无法收起到托盘；可在更多操作中退出。", InfoBarSeverity.Informational);
+                }
             }
             var startupRead = RefreshAsync(); Track(startupRead); await startupRead;
             if (exiting) return;

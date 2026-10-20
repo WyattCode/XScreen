@@ -1,0 +1,97 @@
+{
+  "checks": 139,
+  "failures": 0,
+  "baselineFailedCases": 7,
+  "extraRecoveryCases": 17,
+  "applicationStarted": false,
+  "realShellRegistrationWrites": 0,
+  "monitorReads": 0,
+  "monitorWrites": 0,
+  "results": [
+    {
+      "Name": "A later display notification recovers an initial add failure without requiring a new DPI",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Explorer recovery reuses an existing owned image when its source file is temporarily unreadable",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "A thrown add operation cannot leak its newly allocated HICON",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "A thrown delete operation still releases the owned image and marks the service unavailable",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Duplicate add failure falls back to modifying the already registered icon",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Recovery timer remains scheduled across repeated failures and stops on success",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Disposal cancels a pending recovery timer and ignores queued timer ticks",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Uncertain registration is still explicitly deleted during disposal",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Reentrant exit while adding cannot resurrect the icon or leak either image",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Reentrant exit during DPI modification releases both pending and previous images",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Nested recreate callbacks do not start a second registration operation",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Throwing version negotiation preserves a usable legacy registration",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Throwing DPI modification releases its pending image and schedules recovery of the retained image",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "A failing log sink cannot interrupt icon or recovery timer cleanup",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Recovery from a shared fallback never destroys the borrowed system handle",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "DPI refresh recreates a registration lost without an Explorer notification",
+      "Passed": true,
+      "Error": null
+    },
+    {
+      "Name": "Failed DPI modify and add mark the registration uncertain and start recovery",
+      "Passed": true,
+      "Error": null
+    }
+  ]
+}

@@ -47,7 +47,7 @@ manifest = json.loads((root / f"artifacts/releases/v{version}/XScreen-{version}-
 expected = {f["path"][8:]: f for f in manifest["files"]}
 payload = release / "win-unpacked"
 actual = {p.relative_to(payload).as_posix(): p for p in payload.rglob("*") if p.is_file()}
-check(set(expected) == set(actual) and len(actual) == 521, "win-unpacked contains exactly the previously verified native payload, with no Electron runtime")
+check(set(expected) == set(actual) and len(actual) == len(manifest['files']), "win-unpacked contains exactly the verified native payload manifest, with no added runtime")
 for relative, item in expected.items():
     p = actual[relative]
     check(p.stat().st_size == item["length"] and hashlib.sha256(p.read_bytes()).hexdigest() == item["sha256"], "Native payload remains unchanged: " + relative)
@@ -93,7 +93,8 @@ uend = uheader + ufields[-1]
 check(uheader >= 0 and uend == len(uninstaller) and zlib.crc32(uninstaller[512:uend-4]) == struct.unpack_from('<I', uninstaller, uend-4)[0], 'Statically extracted uninstaller also has a valid complete NSIS CRC')
 check(hashlib.sha256(uninstaller).hexdigest() == static_build['uninstallerSha256'], 'Uninstaller evidence matches the binary embedded by the builder')
 check(all(hashlib.sha256((root/name).read_bytes()).hexdigest() == sha for name,sha in static_build['sourceHashes'].items()), 'Tested installer sources exactly match the compiled source hashes')
-check(versions.get('FileVersion') == '0.3.29.2', 'Installer revision 2 is identifiable in PE file version')
+build_version = re.search(r'^buildVersion:\s*([0-9.]+)\s*$', config, re.M).group(1)
+check(versions.get('FileVersion') == build_version and build_version.startswith(version + '.'), 'Installer PE file version matches the release configuration')
 check('Call ${XSCREEN_PREFIX}XScreenValidateDirectory' in hooks and '0x400' in hooks and 'FindFirst' in functions, "Final checkpoint validates dedicated local directory, existing contents and reparse paths")
 report = {"packager": "electron-builder 26.15.3", "version": version, "checks": len(results), "failures": sum(not r["passed"] for r in results), "payloadFiles": len(actual), "blockmapChunks": sum(len(f["sizes"]) for f in blockmap["files"]), "finalSetupExecuted": False, "applicationExecuted": False, "realMonitorReads": 0, "realMonitorWrites": 0, "results": results}
 args.report.parent.mkdir(parents=True, exist_ok=True)

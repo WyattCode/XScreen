@@ -1,0 +1,208 @@
+{
+  "version": "0.3.30",
+  "uiScenarios": 23,
+  "uiChecks": 428,
+  "trayChecks": 139,
+  "protocolChecks": 187,
+  "interactionChecks": 25,
+  "diagnosticChecks": 23,
+  "safetyChecks": 19,
+  "acceptancePassed": true,
+  "failures": 0,
+  "formalApplicationStarted": false,
+  "realMonitorReads": 0,
+  "realMonitorWrites": 0,
+  "uiResults": [
+    {
+      "scenario": "hotkey-audit",
+      "exitCode": 0,
+      "checks": 14,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "hotkeys",
+      "exitCode": 0,
+      "checks": 49,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "ui-alignment",
+      "exitCode": 0,
+      "checks": 51,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "window-state",
+      "exitCode": 0,
+      "checks": 29,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "reset-settings",
+      "exitCode": 0,
+      "checks": 14,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-reset",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-reset-review",
+      "exitCode": 0,
+      "checks": 2,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "osd-synchronization",
+      "exitCode": 0,
+      "checks": 16,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "osd-fault-name",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "osd-controls",
+      "exitCode": 0,
+      "checks": 30,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-osd-apply",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "osd-comparison",
+      "exitCode": 0,
+      "checks": 18,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "tray-steps",
+      "exitCode": 0,
+      "checks": 23,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "appearance-recovery",
+      "exitCode": 0,
+      "checks": 35,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "lifecycle",
+      "exitCode": 0,
+      "checks": 16,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "audit",
+      "exitCode": 0,
+      "checks": 27,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "menu",
+      "exitCode": 0,
+      "checks": 24,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "core",
+      "exitCode": 0,
+      "checks": 34,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "ui",
+      "exitCode": 0,
+      "checks": 21,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "close-startup",
+      "exitCode": 0,
+      "checks": 5,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "close-write",
+      "exitCode": 0,
+      "checks": 5,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-editor",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    },
+    {
+      "scenario": "exit-startup",
+      "exitCode": 0,
+      "checks": 3,
+      "failures": 0,
+      "nativeReads": 0,
+      "nativeWrites": 0
+    }
+  ],
+  "installerChecks": 547,
+  "installerBehaviorCases": 40,
+  "payloadFiles": 523,
+  "installerExecuted": false,
+  "uninstallerExecuted": false,
+  "installerSha256": "4181c550ca9511f81b83cbfe2525b513a8bda888d0f67b35ba8a9003f544127f",
+  "zipSha256": "577ee330d1db54dae85f66ed7db9f7003b3cf4af69ad74639023503d4edef8f8"
+}

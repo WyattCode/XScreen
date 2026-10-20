@@ -13,7 +13,7 @@
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/XScreen.ico</ApplicationIcon>
-    <AssemblyName>XScreen</AssemblyName><Version>0.3.29</Version>
+    <AssemblyName>XScreen</AssemblyName><Version>0.3.30</Version>
   </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
@@ -21,6 +21,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
     <ProjectReference Include="../XScreen.Core/XScreen.Core.csproj" />
     <Content Update="Assets/XScreen.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Update="Assets/XScreen.Tray.ico" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Assets/*.svg;Assets/*.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <Target Name="PublishApplicationPri" AfterTargets="ComputeFilesToPublish">

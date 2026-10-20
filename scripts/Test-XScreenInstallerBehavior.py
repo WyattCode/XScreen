@@ -316,7 +316,8 @@ def main(report):
         assert (link in v.links)==unrelated
     case('identical-path legacy migration removes obsolete registration and link',lambda:legacy_migration())
     case('legacy migration preserves unrelated uninstall shortcut',lambda:legacy_migration(True))
-    manifest=json.loads((ROOT/'artifacts/releases/v0.3.29/XScreen-0.3.29-files.json').read_text(encoding='utf-8-sig'))
+    version=json.loads((ROOT/'package.json').read_text(encoding='utf-8-sig'))['version']
+    manifest=json.loads((ROOT/f'artifacts/releases/v{version}/XScreen-{version}-files.json').read_text(encoding='utf-8-sig'))
     def removal(locked=False, unrelated=False):
         v=VM(uninst); v.reg(v.v['$INSTDIR'])
         for item in manifest['files']: v.addfile(v.v['$INSTDIR']+'\\'+item['path'][8:].replace('/','\\'))

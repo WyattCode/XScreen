@@ -7,5 +7,6 @@
     <Project Path="tests/XScreen.Acceptance/XScreen.Acceptance.csproj" />
     <Project Path="tests/XScreen.OfflineSafety/XScreen.OfflineSafety.csproj" />
     <Project Path="tests/XScreen.OsdChecks/XScreen.OsdChecks.csproj" />
+    <Project Path="tests/XScreen.TrayChecks/XScreen.TrayChecks.csproj" />
   </Folder>
 </Solution>

@@ -23,12 +23,14 @@
 !/tests/XScreen.ReviewChecks/
 !/tests/XScreen.InteractionChecks/
 !/tests/XScreen.DiagnosticsChecks/
+!/tests/XScreen.TrayChecks/
 /scripts/*
 !/scripts/Build-XScreen.ps1
 !/scripts/Test-XScreenOfflineUi.ps1
 !/scripts/Package-XScreen.ps1
 !/scripts/Build-XScreenInstaller.ps1
 !/scripts/Build-XScreenInstaller.cjs
+!/scripts/Build-XScreenTrayIcon.ps1
 !/scripts/Test-XScreenInstallerBehavior.py
 !/scripts/Test-XScreenInstaller.py
 /tools/*
