@@ -4,8 +4,10 @@
 Var XScreenLinkPath
 Var XScreenLinkTarget
 Var XScreenOldDir
+Var XScreenMutationMutex
 !ifdef BUILD_UNINSTALLER
   !define XSCREEN_PREFIX "un."
+  Var XScreenUninstallOrigin
 !else
   !define XSCREEN_PREFIX ""
   Var XScreenTargetDir
@@ -20,6 +22,7 @@ Var XScreenOldDir
 !macroend
 
 !macro StopIfXScreenRunning
+  ${If} $XScreenMutationMutex == ""
   System::Call 'kernel32::OpenMutexW(i 0x100000, i 0, w "Local\XScreen.UltraGear") p.r0 ?e'
   Pop $1
   ${If} $0 P<> 0
@@ -29,6 +32,29 @@ Var XScreenOldDir
     ; Access denied must not mean 'not running'.
     !insertmacro XScreenFail "无法确认 XScreen 是否已退出；为避免覆盖正在使用的文件，操作已停止。"
   ${EndIf}
+  ${EndIf}
+!macroend
+
+; Program.Main uses this same named mutex before constructing its monitor
+; transport. Keep the handle until Setup/Uninstall exits, including on abort.
+!macro XScreenAcquireMutationLock
+  ${If} $XScreenMutationMutex == ""
+    System::Call 'kernel32::CreateMutexW(p 0, i 1, w "Local\XScreen.UltraGear") p.r0 ?e'
+    Pop $1
+    ${If} $0 P<> 0
+      ${If} $1 == 183
+        System::Call 'kernel32::CloseHandle(p r0)'
+        !insertmacro XScreenFail "XScreen 在操作前已启动，请退出程序并重新运行安装器。"
+      ${EndIf}
+      StrCpy $XScreenMutationMutex $0
+    ${Else}
+      !insertmacro XScreenFail "无法锁定 XScreen 的安装文件，操作已停止。"
+    ${EndIf}
+  ${EndIf}
+!macroend
+
+!macro XScreenCaptureUninstallOrigin
+  GetFullPathName $XScreenUninstallOrigin "$INSTDIR"
 !macroend
 
 !macro XScreenAssertPlainPath PATH
@@ -69,6 +95,7 @@ Var XScreenOldDir
       StrCpy $INSTDIR $XScreenTargetDir
     ${EndIf}
     Call XScreenCheckShortcutCollisions
+    !insertmacro XScreenAcquireMutationLock
   !endif
 !macroend
 
@@ -98,6 +125,9 @@ Var XScreenOldDir
 !macro customUnInit
   !insertmacro StopIfXScreenRunning
   Call un.XScreenValidateDirectory
+  ${If} $XScreenUninstallOrigin != $INSTDIR
+    !insertmacro XScreenFail "卸载器的原始目录与当前安装登记不一致，已停止；请使用当前安装目录的卸载入口。"
+  ${EndIf}
 !macroend
 
 !macro customInstallMode
@@ -185,6 +215,10 @@ Var XScreenOldDir
 !macroend
 
 !macro customRemoveFiles
+  ; Silent stock uninstall skips the section's checkAppRunning call. Recheck
+  ; identity and acquire the launch gate immediately before any file removal.
+  !insertmacro customUnInit
+  !insertmacro XScreenAcquireMutationLock
   !include "${XSCREEN_BUILD_RESOURCES}\generated-uninstall.nsh"
   !insertmacro XScreenDeleteShortcut "$DESKTOP\XScreen.lnk"
   !insertmacro XScreenDeleteShortcut "$SMPROGRAMS\XScreen\XScreen.lnk"

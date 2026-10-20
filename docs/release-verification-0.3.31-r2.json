@@ -1,0 +1,49 @@
+{
+  "tag": "v0.3.31-r2",
+  "installerFileVersion": "0.3.31.2",
+  "applicationVersion": "0.3.31.0",
+  "applicationPayloadChanged": false,
+  "payloadFiles": 523,
+  "staticChecks": 554,
+  "behaviorCases": 64,
+  "failures": 0,
+  "installerExecuted": false,
+  "uninstallerExecuted": false,
+  "formalApplicationStarted": false,
+  "realRegistryWrites": 0,
+  "realMonitorReads": 0,
+  "realMonitorWrites": 0,
+  "assets": [
+    {
+      "name": "XScreen-Setup-0.3.31.exe",
+      "size": 67124889,
+      "sha256": "23d6b05a2221a851957876e1a3087d25ffae84c20692bd4c74158dc6482083fe"
+    },
+    {
+      "name": "XScreen-Setup-0.3.31.exe.blockmap",
+      "size": 71675,
+      "sha256": "f645d023dbfbba8da3fc3244bc9f94b0b2de77c7bb84fdedcc6198ed5259e393"
+    },
+    {
+      "name": "latest.yml",
+      "size": 345,
+      "sha256": "cd5dfd0ab53501e94dea81c8048546ef43196bdd7ce35a0b299807ee91538303"
+    },
+    {
+      "name": "XScreen-0.3.31-win-x64.zip",
+      "size": 89453583,
+      "sha256": "7a3087f74d6843e8760f8d24cb1a4f2e643ee8bf21edd224ab3944c61f7c0026"
+    },
+    {
+      "name": "XScreen-0.3.31-files.json",
+      "size": 136735,
+      "sha256": "f28226e1b97392418a4bc9a894ef0b967e16620e34854c3a17261d5782e551a8"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 458,
+      "sha256": "a58afc9859778f9937672666ec957dc1a00c6fcc3c92740c1b11e34c07d2706c"
+    }
+  ],
+  "validationScope": "Offline static and mocked NSIS source VM; real installation/uninstallation not performed."
+}

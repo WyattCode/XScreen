@@ -32,7 +32,19 @@ async function main() {
       installUtil = installUtil.replace(block, '');
     }
     await fs.writeFile(path.join(root, 'packaging/generated-install-util.nsh'), installUtil);
-    const script = originalScript.replace(upgradeInclude, '!include "${XSCREEN_BUILD_RESOURCES}\\upgrade.nsh"');
+    const uninstallerInclude = '!include "uninstaller.nsh"';
+    if (originalScript.split(uninstallerInclude).length !== 2)
+      throw new Error('Re-audit the stock uninstaller include before building');
+    let uninstallerTemplate = await fs.readFile(path.join(nsisTemplatesDir, 'uninstaller.nsh'), 'utf8');
+    const initEntry = /^Function un\.onInit\r?\n/gm;
+    const dataRemoval = /^  Var \/GLOBAL isDeleteAppData\r?\n[\s\S]*?(?=^  DeleteRegKey SHELL_CONTEXT)/gm;
+    if ([...uninstallerTemplate.matchAll(initEntry)].length !== 1 || [...uninstallerTemplate.matchAll(dataRemoval)].length !== 1)
+      throw new Error('Re-audit the stock uninstaller initialization/data-retention blocks');
+    uninstallerTemplate = uninstallerTemplate.replace(initEntry, 'Function un.onInit\n  !insertmacro XScreenCaptureUninstallOrigin\n')
+      .replace(dataRemoval, '  ; Product policy: user data is retained for every invocation.\n');
+    await fs.writeFile(path.join(root, 'packaging/generated-uninstaller-template.nsh'), uninstallerTemplate);
+    const script = originalScript.replace(upgradeInclude, '!include "${XSCREEN_BUILD_RESOURCES}\\upgrade.nsh"')
+      .replace(uninstallerInclude, '!include "${XSCREEN_BUILD_RESOURCES}\\generated-uninstaller-template.nsh"');
     const uninstaller = path.join(this.outDir, `${path.basename(installerPath, 'exe')}__uninstaller.exe`);
     defines.BUILD_UNINSTALLER = null;
     defines.UNINSTALLER_OUT_FILE = uninstaller;
@@ -55,7 +67,8 @@ async function main() {
   if (extracted !== 1) throw new Error('Expected exactly one statically extracted uninstaller');
   const sources = ['electron-builder.yml', 'packaging/installer.nsh', 'packaging/functions.nsh',
     'packaging/no-start.nsh', 'packaging/per-user.nsh', 'packaging/upgrade.nsh', 'packaging/generated-paths.nsh',
-    'packaging/generated-uninstall.nsh', 'packaging/generated-install-util.nsh', 'tests/Fixtures/installer-upgrade-reference.json',
+    'packaging/generated-uninstall.nsh', 'packaging/generated-install-util.nsh', 'packaging/generated-uninstaller-template.nsh',
+    'tests/Fixtures/installer-upgrade-reference.json',
     'scripts/Build-XScreenInstaller.cjs', 'scripts/Build-XScreenInstaller.ps1'];
   const sourceHashes = {};
   for (const name of sources) sourceHashes[name] = createHash('sha256').update(await fs.readFile(path.join(root, name))).digest('hex');

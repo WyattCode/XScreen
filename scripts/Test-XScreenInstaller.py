@@ -99,6 +99,21 @@ check(static_build.get('upgradePolicy') == 'validated owned-file cleanup; no leg
 upgrade_helpers=(root/'packaging/generated-install-util.nsh').read_text()
 check(not re.search(r'(?m)^Function (uninstallOldVersion|GetInQuotes|GetFileParent)\s*$',upgrade_helpers)
     and not re.search(r'(?im)^\s*ExecWait\b',upgrade_helpers), 'Compiled shared helpers exclude the old uninstaller launch path entirely')
+uninstall_template=(root/'packaging/generated-uninstaller-template.nsh').read_text()
+init_body=re.search(r'Function un.onInit\n(.*?)FunctionEnd',uninstall_template,re.S)[1]
+check(init_body.index('!insertmacro XScreenCaptureUninstallOrigin') < init_body.index('!insertmacro initMultiUser'),
+    'Compiled uninstaller captures its original target before the stock registry redirect')
+check('isDeleteAppData' not in uninstall_template and '--delete-app-data' not in uninstall_template
+    and not re.search(r'(?im)^\s*RMDir\s+/r\s+"?\$APPDATA',uninstall_template),
+    'Compiled uninstaller has no roaming-data removal path, including legacy CLI flags')
+remove_hook=re.search(r'!macro customRemoveFiles\n(.*?)!macroend',hooks,re.S)[1]
+check(remove_hook.index('!insertmacro customUnInit') < remove_hook.index('!insertmacro XScreenAcquireMutationLock') < remove_hook.index('!include'),
+    'Silent file removal revalidates identity and takes the launch gate before any owned-file deletion')
+app_entry=(root/'src/XScreen.App/Program.cs').read_text(encoding='utf-8-sig')
+app_mutex=re.search(r'new Mutex\(true,\s*@"([^"]+)"',app_entry).group(1)
+hook_mutexes=re.findall(r'(?:OpenMutexW|CreateMutexW)\([^\n]+?w "([^"]+)"',hooks)
+check('CreateMutexW' in hooks and len(hook_mutexes)==2 and set(hook_mutexes)=={app_mutex} and 'CloseHandle' in hooks,
+    'Installer mutation gate uses the same mutex identity as the application')
 build_version = re.search(r'^buildVersion:\s*([0-9.]+)\s*$', config, re.M).group(1)
 check(versions.get('FileVersion') == build_version and build_version.startswith(version + '.'), 'Installer PE file version matches the release configuration')
 check('Call ${XSCREEN_PREFIX}XScreenValidateDirectory' in hooks and '0x400' in hooks and 'FindFirst' in functions, "Final checkpoint validates dedicated local directory, existing contents and reparse paths")

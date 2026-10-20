@@ -1,0 +1,22 @@
+{
+  "reviewedInstaller": "0.3.31.1",
+  "candidateInstaller": "0.3.31.2",
+  "candidateOnly": true,
+  "published": false,
+  "applicationVersion": "0.3.31.0",
+  "applicationPayloadChanged": false,
+  "payloadFiles": 523,
+  "baselineRegressions": 3,
+  "staticChecks": 554,
+  "behaviorCases": 64,
+  "failures": 0,
+  "installerExecuted": false,
+  "uninstallerExecuted": false,
+  "formalApplicationStarted": false,
+  "realRegistryWrites": 0,
+  "realMonitorReads": 0,
+  "realMonitorWrites": 0,
+  "setupSha256": "23d6b05a2221a851957876e1a3087d25ffae84c20692bd4c74158dc6482083fe",
+  "sourceChecks": "NSIS template transformation guards; source VM; native payload/PE/CRC/blockmap/hash validation",
+  "knownLimits": "No installation, uninstall, live lock acquisition or hardware acceptance test performed."
+}

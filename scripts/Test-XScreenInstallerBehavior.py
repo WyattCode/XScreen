@@ -42,7 +42,7 @@ class Program:
         output, active, frames = [], True, []
         for raw in lines:
             line = self.subst(raw.strip(), parameters)
-            if not line or line.startswith(';'): continue
+            if not line or line.startswith((';','#')): continue
             t = tokens(line)
             if t[0] in ('!ifdef', '!ifndef'):
                 yes = t[1] in self.defines
@@ -70,9 +70,11 @@ class Program:
     @staticmethod
     def compile(lines):
         code, frames, labels = [], [], {}
+        control_names = {name.lower(): name for name in ('${If}', '${IfNot}', '${AndIf}', '${AndIfNot}', '${OrIf}', '${Else}', '${ElseIf}', '${EndIf}', '${Do}', '${DoWhile}', '${Break}', '${Loop}')}
         for line in lines:
             t = tokens(line)
             if not t: continue
+            t[0] = control_names.get(t[0].lower(), t[0])
             cmd = t[0]
             if cmd in ('${If}', '${IfNot}'):
                 pos = len(code); code.append(['branch', [(t[1:], cmd == '${IfNot}')], None])
@@ -111,13 +113,20 @@ class VM:
         self.p = program
         self.v = {'$INSTDIR': r'D:\Apps\XScreen', '$WINDIR': r'C:\Windows',
                   '$DESKTOP': r'C:\User\Desktop', '$SMPROGRAMS': r'C:\User\StartMenu',
-                  '$TEMP': r'C:\Temp', '$installMode': 'CurrentUser', '$DesktopChoice': '0'}
+                  '$TEMP': r'C:\Temp', '$APPDATA': r'C:\User\AppData\Roaming',
+                  '$installMode': 'CurrentUser', '$DesktopChoice': '0', '$XScreenUninstallOrigin': r'D:\Apps\XScreen'}
         self.files, self.dirs, self.links, self.registry = {}, {}, {}, {}
         self.locked, self.denied_links = set(), set()
         self.stack, self.handles = [], {}
         self.error, self.exitcode, self.mutex = False, 0, 2
         self.windows_build = 26300
         self.operations, self.messages = [], []
+        self.commandline = ''
+        self.mutation_lock = False
+        self.create_mutex_error = None
+    def try_start_app(self):
+        if self.mutation_lock or self.mutex == 0: return False
+        self.mutex = 0; return True
     def value(self, value):
         value = value.strip('"')
         return re.sub(r'\$[A-Za-z_0-9]+', lambda m: str(self.v.get(m[0], '')), value)
@@ -192,6 +201,10 @@ class VM:
                 api = ' '.join(t[1:])
                 if 'OpenMutexW' in api:
                     self.v['$0'] = '1' if self.mutex == 0 else '0'; self.stack.append(str(self.mutex))
+                elif 'CreateMutexW' in api:
+                    error = self.create_mutex_error if self.create_mutex_error is not None else (183 if self.mutex == 0 else 0)
+                    self.v['$0'] = '0' if error not in (0, 183) else '10'; self.stack.append(str(error))
+                    if error == 0: self.mutation_lock = True
                 elif 'CloseHandle' in api: pass
                 elif 'GetFileAttributesW' in api:
                     path = self.value(re.search(r'\(w "([^"]+)"', api)[1])
@@ -209,9 +222,14 @@ class VM:
                 if path in self.locked: self.error = True
                 else: self.files.pop(path, None); self.links.pop(path, None)
             elif cmd == 'RMDir':
-                path = key(a[0]); self.operations.append(('rmdir', path))
+                recursive = a[0].lower() == '/r'
+                path = key(a[1] if recursive else a[0]); self.operations.append(('rmdir', path))
                 children = [p for p in self.files.keys() | self.dirs.keys() | self.links.keys() if p.startswith(path+'\\')]
-                if children: self.error = True
+                if recursive:
+                    for collection in (self.files, self.dirs, self.links):
+                        for p in list(collection):
+                            if p==path or p.startswith(path+'\\'): del collection[p]
+                elif children: self.error = True
                 else: self.dirs.pop(path, None)
             elif cmd == 'CreateDirectory': self.dirs[key(a[0])] = 0x10
             elif cmd == 'CreateShortCut':
@@ -219,6 +237,10 @@ class VM:
                 if key(a[0]) in self.denied_links: self.error = True
                 else: self.links[key(a[0])] = a[1]
             elif cmd == 'SetOutPath': pass
+            elif cmd == 'SetShellVarContext' or cmd == 'Var': pass
+            elif cmd == '${GetParameters}': self.v[t[1]] = self.commandline
+            elif cmd == '${GetOptions}':
+                self.error = a[1].casefold() not in a[0].casefold().split(); self.v[t[3]] = ''
             else: raise AssertionError('Unimplemented source instruction: '+str(t))
     def call(self, name): self.run(self.p.functions[name])
     def macro(self, name): self.run(self.p.macro(name))
@@ -226,12 +248,70 @@ class VM:
 def main(report):
     results = []
     def case(name, test):
-        test(); results.append({'name': name, 'passed': True})
+        try: test(); results.append({'name': name, 'passed': True})
+        except Exception as e: results.append({'name': name, 'passed': False, 'error': repr(e)})
     def stopped(test):
         try: test()
         except Stopped: return
         raise AssertionError('Expected operation to stop')
     inst, uninst = Program(), Program(True)
+    generated_template=ROOT/'packaging/generated-uninstaller-template.nsh'
+    lifecycle_template=(generated_template if generated_template.exists() else ROOT/'node_modules/app-builder-lib/templates/nsis/uninstaller.nsh').read_text(encoding='utf-8-sig')
+    lifecycle_init=re.search(r'Function un.onInit\n(.*?)FunctionEnd',lifecycle_template,re.S)[1]
+    per_user=(ROOT/'node_modules/app-builder-lib/templates/nsis/multiUser.nsh').read_text()
+    per_user_body=re.search(r'!macro setInstallModePerUser\n(.*?)!macroend',per_user,re.S)[1]
+    known_user_branch=per_user_body[:per_user_body.index('${else}')]+ '\n${endif}'
+    def initialize_uninstaller(v, origin):
+        v.v['$INSTDIR']=origin;v.v['$installMode']=''
+        if '!insertmacro XScreenCaptureUninstallOrigin' in lifecycle_init: v.macro('XScreenCaptureUninstallOrigin')
+        v.macro('customCheckAppRunning')
+        v.run(Program.compile(v.p.preprocess(known_user_branch.splitlines())))
+        v.macro('customUnInit')
+    def stale_origin():
+        v=VM(uninst);v.reg(r'D:\New\XScreen')
+        stopped(lambda:initialize_uninstaller(v,r'D:\Old\XScreen'));assert not v.operations
+    case('stale uninstaller cannot be redirected by initMultiUser to a different registered directory',stale_origin)
+    def late_app_start():
+        v=VM(uninst);v.reg(v.v['$INSTDIR']);v.addfile(v.v['$INSTDIR']+r'\XScreen.exe')
+        initialize_uninstaller(v,v.v['$INSTDIR']);assert v.try_start_app()
+        stopped(lambda:v.macro('customRemoveFiles'));assert not v.operations
+    case('silent uninstall rechecks a process that starts after initialization',late_app_start)
+    def cli_data_retention(flag):
+        v=VM(uninst);v.commandline='/S '+flag
+        v.p.defines.update(APP_FILENAME='XScreen',APP_PACKAGE_NAME='xscreen')
+        retained=v.v['$APPDATA']+r'\XScreen\personal.json';v.addfile(retained,'keep')
+        data_block=re.search(r'Var /GLOBAL isDeleteAppData\n(.*?)\n  DeleteRegKey SHELL_CONTEXT',lifecycle_template,re.S)
+        if data_block: v.run(Program.compile(v.p.preprocess(data_block[0].rsplit('\n  DeleteRegKey',1)[0].splitlines())))
+        assert v.files.get(key(retained))=='keep'
+    case('normal silent uninstall keeps roaming user data',lambda:cli_data_retention(''))
+    case('legacy delete-app-data flag cannot bypass the product retention policy',lambda:cli_data_retention('--delete-app-data'))
+    case('legacy data-removal flag remains harmless with mixed casing',lambda:cli_data_retention('--DELETE-app-DATA'))
+    def held_uninstall_gate():
+        v=VM(uninst);v.reg(v.v['$INSTDIR']);v.addfile(v.v['$INSTDIR']+r'\XScreen.exe')
+        initialize_uninstaller(v,v.v['$INSTDIR']);v.macro('customRemoveFiles')
+        assert v.mutation_lock and not v.try_start_app()
+    case('uninstall holds the application launch gate through mutation',held_uninstall_gate)
+    def mutex_acquisition_failure(error):
+        v=VM(uninst);v.reg(v.v['$INSTDIR']);v.addfile(v.v['$INSTDIR']+r'\XScreen.exe')
+        initialize_uninstaller(v,v.v['$INSTDIR']);v.create_mutex_error=error
+        stopped(lambda:v.macro('customRemoveFiles'))
+        assert not v.operations and not v.mutation_lock and v.exitcode==2
+    case('app start between final check and CreateMutex aborts before deletion',lambda:mutex_acquisition_failure(183))
+    case('CreateMutex access failure aborts before deletion',lambda:mutex_acquisition_failure(5))
+    def held_upgrade_gate():
+        v=VM(inst);v.reg(v.v['$INSTDIR']);v.macro('customInit');v.macro('customCheckAppRunning')
+        assert v.mutation_lock and not v.try_start_app()
+        v.call('XScreenRemovePreviousVersion');assert v.v['$R0']=='0' and not v.try_start_app()
+    case('upgrade holds one launch gate across validation and cleanup without rejecting its own handle',held_upgrade_gate)
+    def wizard_does_not_lock():
+        v=VM(inst);v.macro('customInit');v.call('XScreenValidateDirectory');v.call('XScreenCheckShortcutCollisions')
+        assert not v.mutation_lock and v.try_start_app() and not v.operations
+    case('non-mutating installer wizard pages do not block application launch',wizard_does_not_lock)
+    def normal_lifecycle():
+        v=VM(uninst);v.reg(v.v['$INSTDIR'])
+        initialize_uninstaller(v,r'D:\Apps\XScreen\..\XScreen'+'\\')
+        assert v.v['$INSTDIR']==r'D:\Apps\XScreen' and not v.operations
+    case('correct uninstall origin accepts canonical aliases after real per-user initialization',normal_lifecycle)
     stock_uninstaller=(ROOT/'node_modules/app-builder-lib/templates/nsis/uninstaller.nsh').read_text()
     init_body=re.search(r'Function un.onInit\n(.*?)FunctionEnd',stock_uninstaller,re.S)[1]
     assert init_body.index('call un.checkAppRunning') < init_body.index('!insertmacro initMultiUser') < init_body.index('!insertmacro customUnInit')
@@ -403,6 +483,7 @@ def main(report):
         v.macro('customCheckAppRunning')
         # Run the new uninstall hooks against the old path using the same fake OS.
         oldvm=VM(uninst); oldvm.reg(old); oldvm.v['$INSTDIR']=old
+        if 'XScreenCaptureUninstallOrigin' in uninst.macros: oldvm.macro('XScreenCaptureUninstallOrigin')
         oldvm.links=copy.deepcopy(v.links); oldvm.macro('customRemoveFiles')
         v.links=oldvm.links; v.macro('customInstall')
         assert v.links[key(r'C:\User\Desktop\XScreen.lnk')]==r'D:\Apps\XScreen\XScreen.exe'
@@ -412,9 +493,11 @@ def main(report):
     assert not re.search(r'Exec|ExecShell|ExecWait',no_start)
     results.append({'name':'force-run macro has no executable launch instruction','passed':True})
     report.parent.mkdir(parents=True,exist_ok=True)
-    report.write_text(json.dumps({'cases':len(results),'failures':0,'mode':'NSIS source VM, mocked OS boundaries',
+    failures=sum(not r['passed'] for r in results)
+    report.write_text(json.dumps({'cases':len(results),'failures':failures,'mode':'NSIS source VM, mocked OS boundaries',
         'installerExecutions':0,'realRegistryWrites':0,'realMonitorReads':0,'realMonitorWrites':0,'results':results},ensure_ascii=False,indent=2),encoding='utf-8')
-    print(f'Installer behavior regression: {len(results)} passed; installer executions 0; monitor reads/writes 0/0')
+    print(f'Installer behavior regression: {len(results)} cases, {failures} failures; installer executions 0; monitor reads/writes 0/0')
+    if failures: raise SystemExit(1)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--report',type=Path,required=True)

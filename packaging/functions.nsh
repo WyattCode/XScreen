@@ -22,6 +22,7 @@ Function XScreenRemovePreviousVersion
   Call XScreenValidateDirectory
   ; Supported previous payloads are subsets of this version's owned list.
   ; Registration is kept on failure so the user can retry.
+  !insertmacro XScreenAcquireMutationLock
   !include "${XSCREEN_BUILD_RESOURCES}\generated-uninstall.nsh"
   !insertmacro XScreenDeleteShortcut "$DESKTOP\XScreen.lnk"
   !insertmacro XScreenDeleteShortcut "$SMPROGRAMS\XScreen\XScreen.lnk"
