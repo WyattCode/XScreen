@@ -12,13 +12,19 @@ using Windows.Graphics;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.System;
+using XScreen.Core;
 
 namespace XScreen.App;
 
 // A UI-only popup. Its status is a snapshot of MainWindow; opening it never reads hardware.
 sealed class TrayMenuWindow : Window, IDisposable
 {
-    const int AdjustmentStep = 10;
+    // Menu slot map. Slots 1..6 are the up/down pairs for the three writable controls,
+    // in ControlSpec.Writable order; the exit row always sits last so "the bottom of the
+    // menu" keeps meaning "quit" no matter how many controls are added.
+    internal const int OpenSlot = 0;
+    internal static int AdjustFirstSlot => 1;
+    internal static int ExitSlot => AdjustFirstSlot + ControlSpec.Writable.Length * 2;
     readonly Grid root = new();
     readonly StackPanel body = new() { Spacing = 1 };
     readonly Border surface = new() { CornerRadius = new CornerRadius(12), BorderThickness = new Thickness(1), Padding = new Thickness(7) };
@@ -62,16 +68,22 @@ sealed class TrayMenuWindow : Window, IDisposable
         label.Children.Add(new TextBlock { Text = "32GX870A · UltraGear", FontSize = 11, Foreground = Palette.Secondary, TextTrimming = TextTrimming.CharacterEllipsis });
         label.Children.Add(status); Grid.SetColumn(label, 1); heading.Children.Add(label); body.Children.Add(heading);
         Separator(body);
-        AddAction(body, "打开控制窗口", "\uE8A7", "", () => InvokeAction(0));
+        AddAction(body, "打开控制窗口", "\uE8A7", "", () => InvokeAction(OpenSlot));
         recovery = AddAction(body, "重新读取状态", "\uE72C", "", InvokeRecovery, false);
         recovery.Visibility = Visibility.Collapsed; recovery.IsEnabled = false;
         body.Children.Add(group);
-        AddAction(body, "亮度增加", "\uE706", $"+{AdjustmentStep}", () => InvokeAction(1));
-        AddAction(body, "亮度降低", "\uE706", $"−{AdjustmentStep}", () => InvokeAction(2));
-        AddAction(body, "显示器音量增加", "\uE767", $"+{AdjustmentStep}", () => InvokeAction(3));
-        AddAction(body, "显示器音量降低", "\uE767", $"−{AdjustmentStep}", () => InvokeAction(4));
+        // Brightness and volume keep their shipped order; sharpness joins them so the tray
+        // no longer offers fewer controls than the hotkeys do.
+        int slot = AdjustFirstSlot;
+        foreach (var spec in ControlSpec.Writable)
+        {
+            string glyph = spec.Code == 0x87 ? "\uE8B9" : spec.Code == 0x10 ? "\uE706" : "\uE767";
+            int up = slot++, down = slot++;
+            AddAction(body, spec.Name + "增加", glyph, $"+{spec.CoarseStep}", () => InvokeAction(up));
+            AddAction(body, spec.Name + "降低", glyph, $"−{spec.CoarseStep}", () => InvokeAction(down));
+        }
         Separator(body);
-        AddAction(body, "退出 XScreen", "\uE8BB", "", () => InvokeAction(5));
+        AddAction(body, "退出 XScreen", "\uE8BB", "", () => InvokeAction(ExitSlot));
         scroll.Content = body; surface.Child = scroll; root.Children.Add(surface); Content = root;
         root.Resources["SystemAccentColor"] = Windows.UI.Color.FromArgb(255, 229, 0, 70);
         root.TabFocusNavigation = KeyboardNavigationMode.Cycle;
@@ -122,16 +134,21 @@ sealed class TrayMenuWindow : Window, IDisposable
         // Keep this visible session anchored; a fresh open may use a different tray position.
         if (opening) anchor = point;
         status.Text = connection; SetTheme(theme);
-        bool brightness = canAdjust(0x10), volume = canAdjust(0x62);
-        actions[1].IsEnabled = actions[2].IsEnabled = brightness;
-        actions[3].IsEnabled = actions[4].IsEnabled = volume;
+        // Slots 1-6 are the up/down pairs for each writable control, in spec order.
+        bool anyAdjustable = false;
+        for (int i = 0; i < ControlSpec.Writable.Length; i++)
+        {
+            bool allowed = canAdjust(ControlSpec.Writable[i].Code);
+            anyAdjustable |= allowed;
+            actions[1 + i * 2].IsEnabled = actions[2 + i * 2].IsEnabled = allowed;
+        }
         bool recoverable = canReadAgain();
         recovery.Visibility = recoverable ? Visibility.Visible : Visibility.Collapsed;
         recovery.IsEnabled = recoverable;
         // WinUI may automatically advance a disabled adjustment's focus to Exit.
         bool focusedActionDisabled = focused != null && (!focused.IsEnabled || focused.Visibility != Visibility.Visible);
         foreach (var button in actions) button.Opacity = button.IsEnabled ? 1 : .45;
-        group.Text = brightness || volume ? "快捷调节" : recoverable ? "快捷调节 · 请先重新读取" : "快捷调节 · 当前不可用";
+        group.Text = anyAdjustable ? "快捷调节" : recoverable ? "快捷调节 · 请先重新读取" : "快捷调节 · 当前不可用";
         // Only relocate while hidden. Duplicate context-menu notifications must not
         // move a visible card through the tray anchor or reset its keyboard focus.
         if (opening) AppWindow.Move(anchor);
@@ -181,12 +198,16 @@ sealed class TrayMenuWindow : Window, IDisposable
     {
         // Re-check live cached eligibility: an already-open menu must not bypass a later fault.
         if (!IsOpen || disposed || index < 0 || index >= actions.Count) return;
-        byte code = index is 1 or 2 ? (byte)0x10 : (byte)0x62;
-        if (index is >= 1 and <= 4 && (!actions[index].IsEnabled || !canAdjust(code))) { Dismiss(); return; }
+        if (index == OpenSlot) { Dismiss(); open(); return; }
+        if (index == ExitSlot) { Dismiss(); exit(); return; }
+        // Adjustment slots map to the writable controls, up then down, in spec order.
+        int pair = index - AdjustFirstSlot;
+        if (pair < 0 || pair >= ControlSpec.Writable.Length * 2) return;
+        var spec = ControlSpec.Writable[pair / 2];
+        bool increase = pair % 2 == 0;
+        if (!actions[index].IsEnabled || !canAdjust(spec.Code)) { Dismiss(); return; }
         Dismiss();
-        if (index == 0) open();
-        else if (index == 5) exit();
-        else adjust(code, index is 1 or 3 ? AdjustmentStep : -AdjustmentStep);
+        adjust(spec.Code, increase ? (int)spec.CoarseStep : -(int)spec.CoarseStep);
     }
     internal bool HandleKey(VirtualKey key)
     {

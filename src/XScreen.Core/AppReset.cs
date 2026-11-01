@@ -39,11 +39,7 @@ public sealed partial class MonitorController
                     MonitorValue value;
                     try { value = connection.Read(requested); }
                     catch (Exception ex) { throw new ReadbackException("重置状态未能确认；已完成的设置不会自动恢复。", null, writes > 0, phase, ex); }
-                    var spec = ControlSpec.Writable.SingleOrDefault(s => s.Code == requested);
-                    var osd = OsdProtocol.Controls.Where(c => OsdProtocol.Code(c) == requested).ToArray();
-                    bool valid = value.Code == requested && value.Success && (spec == null || ValidRead(spec, value));
-                    if (valid && osd.Length == 1) valid = OsdProtocol.Decode(osd[0], value).Recognized;
-                    if (!valid) throw new ReadbackException("重置状态读取失败或参数未确认；后续重置已停止，已完成的设置不会自动恢复。", value, writes > 0, phase);
+                    if (!IsConfirmedValue(requested, value)) throw new ReadbackException("重置状态读取失败或参数未确认；后续重置已停止，已完成的设置不会自动恢复。", value, writes > 0, phase);
                     if (expected.TryGetValue(requested, out uint target) && value.Current != target)
                         throw new ReadbackException($"重置目标 {target} 与回读 {value.Current} 不一致；后续重置已停止，已完成的设置不会自动恢复。", value, writes > 0, phase);
                     values.Add(value);
@@ -69,7 +65,7 @@ public sealed partial class MonitorController
                 writes++;
                 try { connection.Write(setting.Code, setting.EncodedValue); }
                 catch (Exception ex) { throw new ReadbackException($"{setting.Name}已尝试重置但结果未确认；后续重置已停止，不会自动恢复。", null, true, "reset-write", ex); }
-                Thread.Sleep(200);
+                Thread.Sleep(VerifyDelayMs);
                 // Target first; also check every earlier target to catch dependencies.
                 snapshot = Capture("reset-verify", setting.Code);
             }

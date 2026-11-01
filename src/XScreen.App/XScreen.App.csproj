@@ -13,7 +13,7 @@
     <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/XScreen.ico</ApplicationIcon>
-    <AssemblyName>XScreen</AssemblyName><Version>0.3.31</Version>
+    <AssemblyName>XScreen</AssemblyName><Version>0.3.32</Version>
   </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />

@@ -129,9 +129,12 @@ public sealed partial class ReviewApplication : Application
             var actions = ((IEnumerable)Get(menu, "actions")).Cast<Button>().ToArray();
             Check((bool)Get(menu, "IsOpen") && !window.AppWindow.IsVisible && fake.Reads == reads && fake.Enumerations == enumerations && fake.Writes.Count == 0,
                 "Opening the native tray popup uses cached state and leaves the main window hidden");
-            Check(!menu.AppWindow.IsShownInSwitchers && actions.Length == 6 && actions.All(b => b.IsEnabled), "Popup stays out of task switching and preserves all six actions");
+            // One open row, one pair of rows per writable control, one exit row.
+            int expectedRows = 2 + ControlSpec.Writable.Length * 2;
+            Check(!menu.AppWindow.IsShownInSwitchers && actions.Length == expectedRows && actions.All(b => b.IsEnabled),
+                "Popup stays out of task switching and preserves every action", new { rows = actions.Length, expectedRows });
             Check(actions.All(b => b.ActualHeight >= 36) && ((ScrollViewer)Get(menu, "scroll")).ScrollableHeight < 1, "Native menu rows have usable targets and fit the regular popup");
-            double BottomGap() => menuRoot.ActualHeight - actions[5].TransformToVisual(menuRoot).TransformPoint(new(0, actions[5].ActualHeight)).Y;
+            double BottomGap() => menuRoot.ActualHeight - actions[^1].TransformToVisual(menuRoot).TransformPoint(new(0, actions[^1].ActualHeight)).Y;
             Check(BottomGap() >= 7 && BottomGap() <= 9, "Popup height fits its content with only normal padding below Exit", new { bottomGap = BottomGap(), menuRoot.ActualHeight });
             await (Task)Call(menu, "Capture", ReviewProgram.ReportPath + ".dark.png")!;
             double oneLineHeight = menuRoot.ActualHeight;
@@ -153,7 +156,7 @@ public sealed partial class ReviewApplication : Application
             Check(inside, "Popup placement stays inside work areas across screen edges, negative origins and 100–250 percent DPI");
 
             Call(menu, "HandleKey", Windows.System.VirtualKey.End);
-            Check(actions[5].FocusState != FocusState.Unfocused, "End focuses the last action");
+            Check(actions[^1].FocusState != FocusState.Unfocused, "End focuses the last action");
             Call(menu, "HandleKey", Windows.System.VirtualKey.Home);
             Check(actions[0].FocusState != FocusState.Unfocused, "Home focuses the first action");
             Call(menu, "HandleKey", Windows.System.VirtualKey.Escape);
@@ -177,10 +180,12 @@ public sealed partial class ReviewApplication : Application
             await (Task)Call(menu, "Capture", ReviewProgram.ReportPath + ".light.png")!;
             Call(menu, "Dismiss"); root.RequestedTheme = ElementTheme.Dark; await Task.Delay(150);
             fake.NoDevices = true; await (Task)Call(window, "RefreshAsync", true)!; Call(window, "ShowTrayMenu", point); await Task.Delay(150);
-            Check(actions.Skip(1).Take(4).All(b => !b.IsEnabled) && actions[0].IsEnabled && actions[5].IsEnabled && ((TextBlock)Get(menu, "group")).Text.Contains("不可用"), "Unavailable device disables adjustment actions while open and exit remain usable");
+            Check(actions[1..^1].All(b => !b.IsEnabled) && actions[0].IsEnabled && actions[^1].IsEnabled && ((TextBlock)Get(menu, "group")).Text.Contains("不可用"), "Unavailable device disables adjustment actions while open and exit remain usable");
             await (Task)Call(menu, "Capture", ReviewProgram.ReportPath + ".unavailable.png")!;
             Call(menu, "HandleKey", Windows.System.VirtualKey.Home); Call(menu, "HandleKey", Windows.System.VirtualKey.Down);
-            Check(actions[5].FocusState != FocusState.Unfocused, "Arrow navigation skips all unavailable adjustments");
+            Check(actions[^1].FocusState != FocusState.Unfocused, "Arrow navigation skips all unavailable adjustments",
+                new { focusedIndex = Array.FindIndex(actions, b => b.FocusState != FocusState.Unfocused), total = actions.Length,
+                      enabled = actions.Select(b => b.IsEnabled).ToArray() });
             Call(menu, "InvokeAction", 1); await Task.Delay(200);
             Check(fake.Writes.Count == 2, "Unavailable adjustments cannot bypass disabled UI");
 
@@ -208,7 +213,7 @@ public sealed partial class ReviewApplication : Application
                 Check(WindowsMonitorTransport.NativeReadAttempts == 0 && WindowsMonitorTransport.NativeWriteAttempts == 0, "Tray regression suite uses fake transport only and performs zero real monitor I/O");
                 WriteReport();
             };
-            Call(menu, "InvokeAction", 5); exitingViaMenu = true; await Task.Delay(100);
+            Call(menu, "InvokeAction", actions.Length - 1); exitingViaMenu = true; await Task.Delay(100);
             Check(!closed && (bool)Get(window, "exiting") && !(bool)Get(menu, "IsOpen"), "Tray exit hides promptly while waiting for an in-flight fake write");
             fake.WriteGate.Set();
         }

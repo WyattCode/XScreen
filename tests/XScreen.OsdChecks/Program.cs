@@ -103,7 +103,7 @@ try
     Check(cancelled.Calls.Count == 0, "Cancellation does not open a connection");
     foreach (var control in OsdProtocol.Controls)
     {
-        var blocked = new FakeOsd(); await RejectAsync(() => new MonitorController(blocked).WriteAsync(device, new(OsdProtocol.Code(control), "unverified", 1), 1), "Production write allowlist still excludes " + control);
+        var blocked = new FakeOsd(); await RejectAsync(() => new MonitorController(blocked).WriteAsync(device, new(OsdProtocol.Code(control), "unverified", 1, 1), 1), "Production write allowlist still excludes " + control);
         Check(blocked.Calls.Count == 0, "Unverified write never reaches transport " + control);
     }
     Check(ControlSpec.Writable.Select(s => s.Code).SequenceEqual(new byte[] { 0x10, 0x62, 0x87 })

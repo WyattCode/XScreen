@@ -57,7 +57,7 @@ public sealed partial class ReviewApplication
             bool scrollFocused = scroll.Focus(FocusState.Programmatic);
             Check(scrollFocused && actions.All(b => b.FocusState == FocusState.Unfocused), "Focus-recovery scenario starts outside every action button");
             Call(menu, "HandleKey", VirtualKey.Up);
-            Check(actions[5].FocusState != FocusState.Unfocused, "Up from the scroll container selects the last available action");
+            Check(actions[^1].FocusState != FocusState.Unfocused, "Up from the scroll container selects the last available action");
             scroll.Focus(FocusState.Programmatic); Call(menu, "HandleKey", VirtualKey.Down);
             Check(actions[0].FocusState != FocusState.Unfocused, "Down from the scroll container selects the first available action");
             scroll.IsTabStop = false;
@@ -72,13 +72,13 @@ public sealed partial class ReviewApplication
             Check(!(bool)Get(menu, "IsOpen"), "A routed Escape dismisses the native popup from a scrolled viewport");
 
             Call(window, "ShowTrayMenu", point); await Task.Delay(100);
-            scroll.ChangeView(null, scroll.ScrollableHeight, null, true); actions[5].Focus(FocusState.Keyboard); await Task.Delay(100);
+            scroll.ChangeView(null, scroll.ScrollableHeight, null, true); actions[^1].Focus(FocusState.Keyboard); await Task.Delay(100);
             double oldOffset = scroll.VerticalOffset;
             Call(menu, "Dismiss"); Call(window, "ShowTrayMenu", point); await Task.Delay(150);
             Check(oldOffset > 0 && scroll.VerticalOffset < 1, "A fresh popup open resets the previous scroll position to reveal its heading", new { oldOffset, reopenedOffset = scroll.VerticalOffset });
             scroll.MaxHeight = double.PositiveInfinity; Call(menu, "Dismiss"); Call(window, "ShowTrayMenu", point); await Task.Delay(100);
 
-            actions[5].Focus(FocusState.Keyboard); PostKey(menu, VirtualKey.Tab); await Task.Delay(150);
+            actions[^1].Focus(FocusState.Keyboard); PostKey(menu, VirtualKey.Tab); await Task.Delay(150);
             Check(actions[0].FocusState != FocusState.Unfocused, "A routed Tab wraps from Exit to Open without focusing an unrelated surface");
 
             actions[0].Focus(FocusState.Keyboard); PostKey(menu, VirtualKey.Enter); await Task.Delay(150);
@@ -106,9 +106,9 @@ public sealed partial class ReviewApplication
             Check(volumeTitle.IsTextTrimmed && volumeTitle.TextTrimming == TextTrimming.CharacterEllipsis && AutomationProperties.GetName(actions[3]).Contains("显示器音量增加"),
                 "Narrow rows ellipsize text while preserving the complete accessible action name");
             Call(menu, "HandleKey", VirtualKey.End); await Task.Delay(200);
-            var exitPosition = actions[5].TransformToVisual(scroll).TransformPoint(new(0, 0));
-            Check(actions[5].FocusState != FocusState.Unfocused && exitPosition.Y >= -1 && exitPosition.Y + actions[5].ActualHeight <= scroll.ViewportHeight + 1,
-                "End makes Exit fully visible in a constrained native viewport", new { y = exitPosition.Y, height = actions[5].ActualHeight, scroll.ViewportHeight });
+            var exitPosition = actions[^1].TransformToVisual(scroll).TransformPoint(new(0, 0));
+            Check(actions[^1].FocusState != FocusState.Unfocused && exitPosition.Y >= -1 && exitPosition.Y + actions[^1].ActualHeight <= scroll.ViewportHeight + 1,
+                "End makes Exit fully visible in a constrained native viewport", new { y = exitPosition.Y, height = actions[^1].ActualHeight, scroll.ViewportHeight });
             await (Task)Call(menu, "Capture", ReviewProgram.ReportPath + ".narrow.png")!;
             areaProperty.SetValue(menu, regularArea); Call(menu, "Dismiss"); Call(window, "ShowTrayMenu", point); await Task.Delay(100);
 

@@ -80,6 +80,38 @@ public sealed partial class ReviewApplication
             appearance.SelectedIndex = dark; await Task.Delay(100);
             Check(root.ActualTheme == ElementTheme.Dark && ((SolidColorBrush)root.Background).Color.R < 40, "Selecting Dark restores the graphite surface");
             Check(fake.Reads == initialReads && fake.Writes.Count == 0, "Appearance and initial placement issue no monitor I/O");
+
+            // An offline window must never touch the real user profile: AppearancePath is null
+            // here, so switching the selector cannot create or modify appearance.json.
+            var appearancePathField = window.GetType().GetProperty("AppearancePath", Members)!;
+            bool offlineAppearanceIsolated = appearancePathField.GetValue(window) == null
+                && !File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XScreen", "appearance.json"));
+            var storeType = window.GetType().Assembly.GetType("XScreen.App.AppearanceStore")!;
+            var savedType = window.GetType().Assembly.GetType("XScreen.App.SavedAppearance")!;
+            object App(object selection) => Activator.CreateInstance(savedType, selection)!;
+            object? Store(string name, params object[] args) => storeType.GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, args);
+            int? SelectionOf(object? state) => state?.GetType().GetProperty("Selection")?.GetValue(state) is int value ? value : null;
+            string appearancePath = ReviewProgram.ReportPath + ".appearance.json";
+            if (File.Exists(appearancePath)) File.Delete(appearancePath);
+            Check((bool)Store("Save", appearancePath, App(light))! && SelectionOf(Store("Load", appearancePath)) == light,
+                "A saved appearance choice round-trips through its store");
+            Check((bool)Store("Save", appearancePath, App(dark))! && SelectionOf(Store("Load", appearancePath)) == dark,
+                "A later choice replaces the stored appearance instead of appending");
+            Check(!(bool)Store("Save", appearancePath, App(-1))! && !(bool)Store("Save", appearancePath, App(3))! && !(bool)Store("Save", appearancePath, App(99))!,
+                "Out-of-range appearance values are refused before file mutation");
+            Check(SelectionOf(Store("Load", appearancePath)) == dark,
+                "A refused appearance write leaves the previous choice intact");
+            File.WriteAllText(appearancePath, "{broken");
+            Check(Store("Load", appearancePath) == null, "A malformed appearance file loads as no saved choice");
+            File.WriteAllText(appearancePath, "{\"Selection\":7}");
+            Check(Store("Load", appearancePath) == null, "An out-of-range stored appearance is ignored");
+            Check(!(bool)Store("Save", Path.Combine(appearancePath, "blocked.json"), App(1))! && !(bool)Get(window, "halted"),
+                "Appearance persistence failure does not crash the UI or halt monitor control");
+            Check(storeType.GetProperty("DefaultPath", BindingFlags.Static | BindingFlags.NonPublic)?.GetValue(null) is string defaultAppearancePath
+                && defaultAppearancePath == Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XScreen", "appearance.json"),
+                "Appearance is stored beside the other user-local preferences");
+            Check(offlineAppearanceIsolated, "An offline renderer never writes the saved appearance");
+            if (File.Exists(appearancePath)) File.Delete(appearancePath);
             var moved = new PointInt32(window.AppWindow.Position.X + 20, window.AppWindow.Position.Y + 15); window.AppWindow.Move(moved);
             Call(window, "ShowWindow");
             if (window.GetType().GetMethod("PrepareInitialPlacement", Members) != null) Call(window, "PrepareInitialPlacement");
@@ -102,7 +134,7 @@ public sealed partial class ReviewApplication
                 "A communication fault still pauses every adjustment and shows unknown values");
             Call(window, "ShowTrayMenu", point); await Task.Delay(100);
             var actions = ((IEnumerable)Get(menu, "actions")).Cast<Button>().ToArray();
-            Check(recovery.Visibility == Visibility.Visible && recovery.IsEnabled && actions.Skip(1).Take(4).All(b => !b.IsEnabled) && ((TextBlock)Get(menu, "group")).Text.Contains("重新读取"),
+            Check(recovery.Visibility == Visibility.Visible && recovery.IsEnabled && actions[1..^1].All(b => !b.IsEnabled) && ((TextBlock)Get(menu, "group")).Text.Contains("重新读取"),
                 "A recoverable pre-write fault explains disabled tray adjustments and exposes an enabled read-only command");
             Call(menu, "HandleKey", Windows.System.VirtualKey.Home); Call(menu, "HandleKey", Windows.System.VirtualKey.Down);
             Check(recovery.FocusState != FocusState.Unfocused, "Arrow navigation reaches the visible recovery command in visual order");
@@ -122,7 +154,7 @@ public sealed partial class ReviewApplication
             Call(menu, "InvokeRecovery"); await Task.Delay(80);
             Check(fake.Reads == beforeRead + 7 && fake.Writes.Count == 1, "A late click from the dismissed recovery command performs no I/O");
             Call(window, "ShowTrayMenu", point); await Task.Delay(80);
-            Check(recovery.Visibility == Visibility.Collapsed && actions.Skip(1).Take(4).All(b => b.IsEnabled), "A successful explicit read restores normal tray adjustments");
+            Check(recovery.Visibility == Visibility.Collapsed && actions[1..^1].All(b => b.IsEnabled), "A successful explicit read restores normal tray adjustments");
             Call(menu, "Dismiss"); fake.FailNextReadback = true; Call(volume, "Request", 54d); await Idle();
             Call(window, "ShowTrayMenu", point); await Task.Delay(80); int uncertainReads = fake.Reads;
             Call(menu, "InvokeRecovery"); await Task.Delay(80);

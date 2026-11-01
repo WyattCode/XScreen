@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using XScreen.Core;
 
 namespace XScreen.App;
 
@@ -19,8 +20,20 @@ sealed record HotkeySettings(bool Enabled, HotkeyBinding[] Bindings)
     public string? Error => Bindings == null || Bindings.Length != 6 || Bindings.Any(b => b == null || !Enum.IsDefined(b.Action) || b.Chord is { Valid: false }) || Bindings.Select(b => b.Action).Distinct().Count() != 6
         ? "快捷键配置无效，请重新设置。" : Bindings.Where(b => b.Chord != null).GroupBy(b => b.Chord).Any(g => g.Count() > 1) ? "两个操作使用了相同的快捷键，请修改后保存。" : null;
     public static string Name(HotkeyAction action) => action switch { HotkeyAction.BrightnessUp => "亮度增加", HotkeyAction.BrightnessDown => "亮度降低", HotkeyAction.VolumeUp => "显示器音量增加", HotkeyAction.VolumeDown => "显示器音量降低", HotkeyAction.SharpnessUp => "锐度增加", _ => "锐度降低" };
-    public static (byte Code, int Delta) Target(HotkeyAction action) => action switch {
-        HotkeyAction.BrightnessUp => (0x10, 10), HotkeyAction.BrightnessDown => (0x10, -10), HotkeyAction.VolumeUp => (0x62, 10), HotkeyAction.VolumeDown => (0x62, -10), HotkeyAction.SharpnessUp => (0x87, 10), HotkeyAction.SharpnessDown => (0x87, -10), _ => throw new ArgumentOutOfRangeException(nameof(action)) };
+    // Hotkeys act away from the window, so they use the coarse increment from the spec
+// rather than a hard-coded number that could drift from the tray and the window.
+    public static (byte Code, int Delta) Target(HotkeyAction action)
+    {
+        var (code, up) = action switch
+        {
+            HotkeyAction.BrightnessUp => ((byte)0x10, true), HotkeyAction.BrightnessDown => ((byte)0x10, false),
+            HotkeyAction.VolumeUp => ((byte)0x62, true), HotkeyAction.VolumeDown => ((byte)0x62, false),
+            HotkeyAction.SharpnessUp => ((byte)0x87, true), HotkeyAction.SharpnessDown => ((byte)0x87, false),
+            _ => throw new ArgumentOutOfRangeException(nameof(action))
+        };
+        int coarse = (int)(ControlSpec.ByCode(code)?.CoarseStep ?? 10);
+        return (code, up ? coarse : -coarse);
+    }
 }
 static class HotkeyStore
 {

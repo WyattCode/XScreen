@@ -1,5 +1,5 @@
 param(
-    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.31',
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.32',
     [string]$EvidenceDirectory = "$PSScriptRoot/../analysis/evidence/local-review"
 )
 $ErrorActionPreference = 'Stop'

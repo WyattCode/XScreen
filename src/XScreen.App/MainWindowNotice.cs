@@ -80,11 +80,17 @@ sealed partial class MainWindow
         });
         void PositionNotice()
         {
-            noticeHost.Margin = new Thickness(20, 12, 20, layout.Padding.Bottom + footer.ActualHeight + 12);
+            // Clear the shelf as well as the footer. The shelf carries the picture-mode,
+            // contrast and black-stabilizer readouts, which are exactly what a fault card
+            // would otherwise hide at the moment they matter most. It collapses to zero
+            // height on the picture/color page, so this stays correct there too.
+            double shelfHeight = statusShelf?.Visibility == Visibility.Visible ? statusShelf.ActualHeight : 0;
+            noticeHost.Margin = new Thickness(20, 12, 20, layout.Padding.Bottom + footer.ActualHeight + shelfHeight + 24);
             noticeHost.MaxHeight = Math.Min(240, Math.Max(80, root.ActualHeight * .45));
             noticeScroll.MaxHeight = noticeHost.MaxHeight - 2;
         }
         footer.SizeChanged += (_, _) => PositionNotice();
+        if (statusShelf != null) statusShelf.SizeChanged += (_, _) => PositionNotice();
         root.SizeChanged += (_, _) => PositionNotice();
         PositionNotice();
         // Closing the InfoBar only dismisses this card. Fault recovery still uses Refresh.

@@ -44,15 +44,15 @@ public sealed partial class ReviewApplication
             Check(actions[3].FocusState != FocusState.Unfocused, "Eligibility transition starts on a focused adjustment");
             window.GetType().GetField("refreshing", Members)!.SetValue(window, true);
             Call(window, "ShowTrayMenu", point); await Task.Delay(100);
-            Check(actions.Skip(1).Take(4).All(b => !b.IsEnabled) && actions[0].FocusState != FocusState.Unfocused,
+            Check(actions[1..^1].All(b => !b.IsEnabled) && actions[0].FocusState != FocusState.Unfocused,
                 "Disabling the focused adjustment moves focus to Open rather than Exit",
                 new { focused = Array.FindIndex(actions, b => b.FocusState != FocusState.Unfocused) });
-            actions[5].Focus(FocusState.Keyboard); Call(window, "ShowTrayMenu", point); await Task.Delay(80);
-            Check(actions[5].FocusState != FocusState.Unfocused,
+            actions[^1].Focus(FocusState.Keyboard); Call(window, "ShowTrayMenu", point); await Task.Delay(80);
+            Check(actions[^1].FocusState != FocusState.Unfocused,
                 "A deliberately focused Exit remains focused when eligibility has not changed");
             window.GetType().GetField("refreshing", Members)!.SetValue(window, false);
             Call(window, "ShowTrayMenu", point); await Task.Delay(80);
-            Check(actions[5].FocusState != FocusState.Unfocused && actions.All(b => b.IsEnabled),
+            Check(actions[^1].FocusState != FocusState.Unfocused && actions.All(b => b.IsEnabled),
                 "Re-enabling adjustments preserves the user's current enabled action");
 
             bool focusCycles = true;
@@ -60,7 +60,7 @@ public sealed partial class ReviewApplication
             {
                 window.AppWindow.Show(); window.Activate(); await Until(() => !(bool)Get(menu, "IsOpen"));
                 focusCycles &= !menu.AppWindow.IsVisible;
-                Call(menu, "InvokeAction", 1); Call(menu, "InvokeAction", 5);
+                Call(menu, "InvokeAction", 1); Call(menu, "InvokeAction", actions.Length - 1);
                 window.AppWindow.Hide(); Call(window, "ShowTrayMenu", point); await Task.Delay(50);
                 focusCycles &= ReferenceEquals(menu, Get(window, "trayMenu")) && (bool)Get(menu, "IsOpen") && actions[0].FocusState != FocusState.Unfocused;
                 actions[4].Focus(FocusState.Keyboard);
@@ -91,7 +91,7 @@ public sealed partial class ReviewApplication
                 window.DispatcherQueue.TryEnqueue(() => Exit());
             };
             Call(window, "ShowTrayMenu", point); await Task.Delay(80);
-            var invoke = (IInvokeProvider)new ButtonAutomationPeer(actions[5]).GetPattern(PatternInterface.Invoke);
+            var invoke = (IInvokeProvider)new ButtonAutomationPeer(actions[^1]).GetPattern(PatternInterface.Invoke);
             invoke.Invoke(); invoke.Invoke(); await Until(() => (bool)Get(window, "exiting"));
             Check(!(bool)Get(menu, "IsOpen") && !menu.AppWindow.IsVisible,
                 "Two queued native Exit clicks dismiss the popup and start one draining exit");

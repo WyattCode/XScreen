@@ -19,6 +19,11 @@
       "version": "0.3.31",
       "files": 523,
       "manifestSha256": "f28226e1b97392418a4bc9a894ef0b967e16620e34854c3a17261d5782e551a8"
+    },
+    {
+      "version": "0.3.32",
+      "files": 523,
+      "manifestSha256": "07a4de570237d6f203192488a1175e4ebbea676af5ff1da2f0a9fa2021374db1"
     }
   ],
   "ownedPaths": [
@@ -467,7 +472,6 @@
     "ms-MY/Microsoft.UI.Xaml.Phone.dll.mui",
     "ms-MY/Microsoft.ui.xaml.dll.mui",
     "mscordaccore.dll",
-    "mscordaccore_amd64_amd64_10.0.1026.32716.dll",
     "mscordbi.dll",
     "mscorlib.dll",
     "mscorrc.dll",
@@ -544,6 +548,13 @@
     "zh-CN/Microsoft.UI.Xaml.Phone.dll.mui",
     "zh-CN/Microsoft.ui.xaml.dll.mui",
     "zh-TW/Microsoft.UI.Xaml.Phone.dll.mui",
-    "zh-TW/Microsoft.ui.xaml.dll.mui"
+    "zh-TW/Microsoft.ui.xaml.dll.mui",
+    "mscordaccore_amd64_amd64_10.0.1426.52326.dll"
+  ],
+  "retiredPaths": [
+    {
+      "path": "mscordaccore_amd64_amd64_10.0.1026.32716.dll",
+      "reason": "Runtime assembly renamed by a .NET servicing update; not shipped in 0.3.32."
+    }
   ]
 }

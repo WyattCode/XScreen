@@ -1,11 +1,17 @@
 namespace XScreen.Core;
 
-public sealed record ControlSpec(byte Code, string Name, uint Step)
+// Step is the fine increment used by the on-screen +/- buttons. CoarseStep is the larger
+// jump used by the tray menu and global hotkeys, where the user is away from the window
+// and expects a visible change from one press. Keeping both on the spec stops each entry
+// point from inventing its own number, which previously made the same "+" move 1 in the
+// window and 10 elsewhere. CoarseStep must remain a multiple of Step.
+public sealed record ControlSpec(byte Code, string Name, uint Step, uint CoarseStep)
 {
-    public static readonly ControlSpec Brightness = new(0x10, "亮度", 1);
-    public static readonly ControlSpec Volume = new(0x62, "显示器音量", 1);
-    public static readonly ControlSpec Sharpness = new(0x87, "锐度", 10);
+    public static readonly ControlSpec Brightness = new(0x10, "亮度", 1, 10);
+    public static readonly ControlSpec Volume = new(0x62, "显示器音量", 1, 10);
+    public static readonly ControlSpec Sharpness = new(0x87, "锐度", 10, 10);
     public static readonly ControlSpec[] Writable = [Brightness, Volume, Sharpness];
+    public static ControlSpec? ByCode(byte code) => Writable.FirstOrDefault(s => s.Code == code);
 }
 public sealed record MonitorDevice(string Id, string Name, string Display, bool Supported);
 public sealed record MonitorValue(byte Code, bool Success, uint Current, uint Maximum, int? Error = null);
@@ -18,6 +24,11 @@ public sealed record OsdWriteResult(OsdControl Control, uint Previous, uint Actu
     bool WasWritten, MonitorSnapshot Snapshot);
 public sealed class ReadbackException(string message, MonitorValue? actual, bool writeAttempted = false, string phase = "read", Exception? inner = null) : Exception(message, inner)
 {
+    // Standard shapes so the type stays serializable and usable like any other exception.
+    // actual is declared nullable, but naming it keeps the null unambiguous for analysis.
+    public ReadbackException() : this("读写未确认。", actual: null) { }
+    public ReadbackException(string message) : this(message, actual: null) { }
+    public ReadbackException(string message, Exception innerException) : this(message, actual: null, inner: innerException) { }
     public MonitorValue? Actual { get; } = actual;
     public bool WriteAttempted { get; } = writeAttempted;
     public string Phase { get; } = phase;
@@ -34,9 +45,13 @@ public interface IMonitorTransport
     IReadOnlyList<MonitorDevice> Enumerate();
     IMonitorConnection Open(string deviceId);
 }
-public sealed partial class MonitorController(IMonitorTransport transport)
+public sealed partial class MonitorController(IMonitorTransport transport) : IDisposable
 {
     readonly SemaphoreSlim gate = new(1, 1);
+    bool disposed;
+    // Write-then-readback settle time. Named rather than inlined so the three call sites
+    // stay in step; see the note at its use site before changing the value.
+    internal const int VerifyDelayMs = 200;
     Exception? fault;
     long generation;
     public bool Halted => Volatile.Read(ref fault) != null;
@@ -99,7 +114,13 @@ public sealed partial class MonitorController(IMonitorTransport transport)
                 catch (Exception ex) { throw new ReadbackException("已尝试写入，结果未确认；不会自动恢复。", null, true, "write", ex); }
             }
             // Cancellation after mutation cannot skip required verification or cause a restore write.
-            if (written) Thread.Sleep(200);
+            // The 200 ms settle interval is an established write-then-readback delay for this
+            // model, not a derived value: the documented ~40 ms read / ~50 ms set figures
+            // describe call duration, not the minimum wait a panel needs before it reports
+            // the new value. Do not trim it without a device measurement (see
+            // analysis/DDC-CHECKSUM-REVIEW-20261019.md). It runs inside the serialized gate,
+            // so it delays the queue by the same amount.
+            if (written) Thread.Sleep(VerifyDelayMs);
             string phase = written ? "read-after-write" : "read-after-noop";
             var after = new List<MonitorValue>();
             foreach (byte code in new[] { command.Code }.Concat(ReadCodes).Distinct())
@@ -108,10 +129,7 @@ public sealed partial class MonitorController(IMonitorTransport transport)
                 if (!written) cancellation.ThrowIfCancellationRequested();
                 try { value = connection.Read(code); }
                 catch (Exception ex) { throw new ReadbackException("状态读取失败。", null, written, phase, ex); }
-                var oldSpec = ControlSpec.Writable.SingleOrDefault(s => s.Code == code);
-                bool valid = value.Code == code && value.Success && (oldSpec == null || ValidRead(oldSpec, value));
-                var osd = OsdProtocol.Controls.Where(c => OsdProtocol.Code(c) == code).ToArray();
-                if (valid && osd.Length == 1) valid = OsdProtocol.Decode(osd[0], value).Recognized;
+                bool valid = IsConfirmedValue(code, value);
                 if (!valid) throw new ReadbackException("读到失败或未确认的状态；后续操作已停止。", value, written, phase);
                 if (code == command.Code && value.Current != command.ExpectedReadback)
                     throw new ReadbackException($"请求值 {target} 与回读 {value.Current} 不一致；不会自动恢复。", value, written, phase);
@@ -129,11 +147,29 @@ public sealed partial class MonitorController(IMonitorTransport transport)
         foreach (byte code in ReadCodes)
         {
             var value = connection.Read(code); values.Add(value);
-            var spec = ControlSpec.Writable.SingleOrDefault(s => s.Code == code);
-            if (!value.Success || value.Code != code || spec != null && !ValidRead(spec, value))
-                throw ReadFailure("snapshot", value);
+            if (!IsUsableSnapshotValue(code, value)) throw ReadFailure("snapshot", value);
         }
         return new MonitorSnapshot(device, DateTimeOffset.Now, values);
+    }
+    // One definition of "this reply can be trusted by a write/verify path", shared by the OSD
+    // write verification and the reset verification. The snapshot path deliberately keeps a
+    // looser rule: an unrecognised mode or colour value is reported to the UI as unknown and
+    // only that one editor is disabled, rather than failing the whole seven-field read.
+    static bool IsConfirmedValue(byte code, MonitorValue value)
+    {
+        if (value.Code != code || !value.Success) return false;
+        var spec = ControlSpec.ByCode(code);
+        if (spec != null && !ValidRead(spec, value)) return false;
+        var osd = OsdProtocol.Controls.Where(c => OsdProtocol.Code(c) == code).ToArray();
+        return osd.Length != 1 || OsdProtocol.Decode(osd[0], value).Recognized;
+    }
+    // Snapshot rule: numeric controls must be in range, but OSD enums are allowed through
+    // unrecognised so the UI can show the raw value honestly instead of losing all fields.
+    static bool IsUsableSnapshotValue(byte code, MonitorValue value)
+    {
+        if (value.Code != code || !value.Success) return false;
+        var spec = ControlSpec.ByCode(code);
+        return spec == null || ValidRead(spec, value);
     }
     // Never called automatically. This operation contains reads only and cannot
     // resume an uncertain write. Pending requests from the old generation stay invalid.
@@ -180,7 +216,7 @@ public sealed partial class MonitorController(IMonitorTransport transport)
             try { connection.Write(spec.Code, target); }
             catch (Exception ex) { throw new ReadbackException("已尝试写入，但结果未确认。", null, true, "write", ex); }
             // Finish verification after any write even if a newer UI request cancels its predecessor.
-            Thread.Sleep(200);
+            Thread.Sleep(VerifyDelayMs);
             MonitorValue actual;
             try { actual = connection.Read(spec.Code); }
             catch (Exception ex) { throw new ReadbackException("写入后读取失败，结果未确认。", null, true, "read-after-write", ex); }
@@ -205,5 +241,13 @@ public sealed partial class MonitorController(IMonitorTransport transport)
             catch (Exception ex) { Interlocked.CompareExchange(ref fault, ex, null); throw; }
         }
         finally { gate.Release(); }
+    }
+    // Releasing the gate is safe once the window is closing: no request can be in flight
+    // because exit awaits every tracked operation before disposal.
+    public void Dispose()
+    {
+        if (disposed) return;
+        disposed = true;
+        gate.Dispose();
     }
 }

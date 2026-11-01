@@ -11,9 +11,9 @@ if (args.Length > 0)
 var fake = new FakeTransport();
 var service = new MonitorController(fake);
 var supported = new MonitorDevice("fake", "Test", "test", true);
-await MustReject(() => service.WriteAsync(supported, new ControlSpec(0xD6, "power", 1), 1));
-await MustReject(() => service.WriteAsync(supported, new ControlSpec(0xF5, "aspect-ratio", 1), 1));
-await MustReject(() => service.WriteAsync(supported, new ControlSpec(0xF8, "adaptive-sync", 1), 1));
+await MustReject(() => service.WriteAsync(supported, new ControlSpec(0xD6, "power", 1, 1), 1));
+await MustReject(() => service.WriteAsync(supported, new ControlSpec(0xF5, "aspect-ratio", 1, 1), 1));
+await MustReject(() => service.WriteAsync(supported, new ControlSpec(0xF8, "adaptive-sync", 1, 1), 1));
 await MustReject(() => service.WriteAsync(supported with { Supported = false }, ControlSpec.Brightness, 99));
 await MustReject(() => service.WriteAsync(supported, ControlSpec.Sharpness, 45));
 Assert(fake.Writes == 0, "Unsupported/invalid writes must not reach hardware");

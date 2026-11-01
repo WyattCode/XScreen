@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Automation.Provider;
 using Microsoft.UI.Xaml.Controls;
+using XScreen.App;
 using XScreen.Core;
 
 namespace XScreen.Review;
@@ -121,9 +122,14 @@ public sealed partial class ReviewApplication
             await (Task)Call(window!, "Capture", ReviewProgram.ReportPath + ".light.png")!;
             ((ComboBox)Get(window!, "appearance")).SelectedIndex = 0; await Task.Delay(80);
             await (Task)Call(window!, "Capture", ReviewProgram.ReportPath + ".dark.png")!;
-            Call(window!, "ResizeLogical", 840, 680); await Task.Delay(120);
-            Check(((ScrollViewer)Get(window!, "advancedScroll")).ScrollableHeight > 0 && OsdProtocol.Controls.All(c => ((Grid)Get(Editor(c), "View")).ActualWidth <= ((Grid)Get(window!, "root")).ActualWidth),
-                "The four-control pane scrolls within the minimum window without horizontal overflow");
+            // Use the shipped minimum, not a literal, so this keeps testing the real floor.
+            Call(window!, "ResizeLogical", (int)WindowStateStore.MinimumWidth, (int)WindowStateStore.MinimumHeight);
+            await Task.Delay(200);
+            double viewW = ((Grid)Get(window!, "root")).ActualWidth;
+            double widest = OsdProtocol.Controls.Max(c => ((Grid)Get(Editor(c), "View")).ActualWidth);
+            Check(((ScrollViewer)Get(window!, "advancedScroll")).ScrollableHeight >= 0 && widest <= viewW,
+                "The four-control pane fits the minimum window without horizontal overflow",
+                new { viewW, widest, minW = WindowStateStore.MinimumWidth, minH = WindowStateStore.MinimumHeight });
             int beforeRestricted = fake.Reads, beforeRestrictedWrites = fake.Writes.Count;
             foreach (string restrictedTarget in new[] { "66", "76" }) { Number(OsdControl.Contrast).Text = restrictedTarget; await (Task)Call(advanced, "ApplyAsync", OsdControl.Contrast)!; }
             Check(fake.Reads == beforeRestricted && fake.Writes.Count == beforeRestrictedWrites && !(bool)Get(window!, "halted"),

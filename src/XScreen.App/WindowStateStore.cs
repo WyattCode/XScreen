@@ -8,6 +8,10 @@ sealed record SavedWindowState(double Width, double Height, bool Maximized);
 
 static class WindowStateStore
 {
+    // Minimum size has to sit below the compact threshold, otherwise the compact layout can never
+    // engage and that whole branch is unreachable. Compact needs about 820; 900 leaves slack so
+    // the rail is never squeezed, and it stays under the 1000 threshold in MainWindow.
+    internal const double MinimumWidth = 840, MinimumHeight = 900;
     internal static string DefaultPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "XScreen", "window-state.json");
     internal static bool Valid(SavedWindowState state) => double.IsFinite(state.Width) && double.IsFinite(state.Height)
         && state.Width > 0 && state.Height > 0 && state.Width <= 16384 && state.Height <= 16384;
@@ -47,7 +51,9 @@ static class WindowStateStore
         if (!double.IsFinite(scale) || scale <= 0) scale = 1;
         int margin = Math.Min((int)Math.Ceiling(16 * scale), Math.Max(0, (Math.Min(work.Width, work.Height) - 1) / 2));
         int width = (int)Math.Min(Math.Round(Math.Max(840, state.Width) * scale), Math.Max(1, work.Width - 2 * margin));
-        int height = (int)Math.Min(Math.Round(Math.Max(680, state.Height) * scale), Math.Max(1, work.Height - 2 * margin));
+        // The floor tracks the control column's own floor so a size saved by an older build
+        // cannot restore a window too short for the rail.
+        int height = (int)Math.Min(Math.Round(Math.Max(MinimumHeight, state.Height) * scale), Math.Max(1, work.Height - 2 * margin));
         return new(work.X + (work.Width - width) / 2, work.Y + (work.Height - height) / 2, width, height);
     }
 }

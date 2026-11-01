@@ -1,5 +1,5 @@
 param(
-    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.31',
+    [ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version = '0.3.32',
     [ValidatePattern('^[A-Za-z0-9_-]+$')][string]$RunName = ('offline-ui-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
 )
 $ErrorActionPreference = 'Stop'

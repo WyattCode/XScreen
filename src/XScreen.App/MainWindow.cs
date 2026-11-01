@@ -36,6 +36,8 @@ sealed partial class MainWindow : Window
     readonly Button reset = Command("重置设置", Symbol.Undo);
     readonly InfoBar notice = new() { IsOpen = false, IsClosable = true };
     readonly ComboBox appearance = new() { MinWidth = 150, SelectedIndex = 0 };
+    // Null in every offline renderer/test unless an isolated test path is explicitly injected.
+    internal string? AppearancePath { get; set; }
     readonly ScrollViewer scroll;
     readonly Image backdrop, logo;
     NativeWindow? native;
@@ -62,16 +64,24 @@ sealed partial class MainWindow : Window
         renderOnly = isRenderOnly; renderTransport = transport as RenderTransport;
         WindowStatePath = isRenderOnly ? null : WindowStateStore.DefaultPath;
         HotkeyPath = isRenderOnly ? null : HotkeyStore.DefaultPath;
+        AppearancePath = isRenderOnly ? null : AppearanceStore.DefaultPath;
         RemoteSessionCheck = isRenderOnly ? () => false : SessionEnvironment.IsRemoteDesktop;
-        Title = Program.WindowTitle; root.RequestedTheme = ElementTheme.Dark; root.Background = Palette.Ground;
+        // Loaded once here so the constructor can apply it before the first frame.
+        var savedAppearance = AppearancePath is { } appearanceFile ? AppearanceStore.Load(appearanceFile) : null;
+        Title = Program.WindowTitle;
+        // Seed the requested theme from the saved choice so no later re-assignment is needed.
+        root.RequestedTheme = (savedAppearance?.Selection ?? 0) switch { 0 => ElementTheme.Dark, 1 => ElementTheme.Light, _ => ElementTheme.Default };
+        root.Background = Palette.Ground;
         foreach (string key in new[] { "SliderTrackValueFill", "SliderTrackValueFillPointerOver", "SliderTrackValueFillPressed", "SliderThumbBackground", "SliderThumbBackgroundPointerOver", "SliderThumbBackgroundPressed", "AccentFillColorDefaultBrush", "SystemControlHighlightAccentBrush" }) root.Resources[key] = Palette.Accent;
         root.Resources["SystemAccentColor"] = Windows.UI.Color.FromArgb(255, 229, 0, 70);
         root.Resources["SliderTrackThemeHeight"] = 10d;
         root.Resources["SliderTrackCornerRadius"] = new CornerRadius(5);
         foreach (string key in new[] { "SliderTrackFill", "SliderTrackFillPointerOver", "SliderTrackFillPressed" }) root.Resources[key] = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 53, 53, 59));
-        root.Resources["SliderOuterThumbBackground"] = new SolidColorBrush(Colors.White);
-        root.Resources["SliderThumbBorderBrush"] = new SolidColorBrush(Colors.White);
-        backdrop = new() { Source = Asset("UltraGearBackdrop.png"), Stretch = Stretch.UniformToFill, IsHitTestVisible = false, Opacity = .65 };
+        // Thumb colour is set in UpdatePalette along with the rest of the theme, because a fixed
+        // white disc disappears against the light ground.
+        // Faded so the diagonal artwork reads as background texture instead of competing with
+        // the numerals and the rail.
+        backdrop = new() { Source = Asset("UltraGearBackdrop.png"), Stretch = Stretch.UniformToFill, IsHitTestVisible = false, Opacity = .4 };
         AutomationProperties.SetAccessibilityView(backdrop, Microsoft.UI.Xaml.Automation.Peers.AccessibilityView.Raw);
         root.Children.Add(backdrop); root.Children.Add(layout);
         foreach (var h in new[] { GridLength.Auto, new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto }) layout.RowDefinitions.Add(new() { Height = h });
@@ -97,8 +107,10 @@ sealed partial class MainWindow : Window
             Grid.SetColumn(host, i); channels.Children.Add(host);
         }
         scroll = new() { Content = channels, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        ThinScrollBar(scroll);
         advanced = new OsdControlsView(ReadPictureStateAsync, WriteOsdAsync, Track, UpdateRefresh);
         advancedScroll = new() { Content = advanced.View, Visibility = Visibility.Collapsed, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        ThinScrollBar(advancedScroll);
         var pageHost = new Grid { RowSpacing = 8 }; pageHost.RowDefinitions.Add(new() { Height = GridLength.Auto }); pageHost.RowDefinitions.Add(new() { Height = new GridLength(1, GridUnitType.Star) });
         var quickPage = new SelectorBarItem { Text = "快速控制" }; var picturePage = new SelectorBarItem { Text = "画面与色彩" };
         pages.Items.Add(quickPage); pages.Items.Add(picturePage); pages.SelectedItem = quickPage; AutomationProperties.SetName(pages, "控制页面");
@@ -113,7 +125,11 @@ sealed partial class MainWindow : Window
         var footer = new Grid { ColumnSpacing = 12, MinHeight = 30 };
         foreach (var w in new[] { new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto }) footer.ColumnDefinitions.Add(new() { Width = w });
         appearance.Items.Add("UltraGear 深色"); appearance.Items.Add("UltraGear 浅色"); appearance.Items.Add("跟随 Windows"); AutomationProperties.SetName(appearance, "界面外观");
-        appearance.SelectionChanged += (_, _) => { root.RequestedTheme = appearance.SelectedIndex switch { 0 => ElementTheme.Dark, 1 => ElementTheme.Light, _ => ElementTheme.Default }; UpdatePalette(); }; Grid.SetColumn(appearance, 1); footer.Children.Add(appearance);
+        // Restore the saved choice before the change handler exists, so reading it back
+        // is never mistaken for a user edit and re-saved. The requested theme was already
+        // seeded above; the normal ActualThemeChanged path finishes the palette work.
+        if (savedAppearance is { } restored) appearance.SelectedIndex = restored.Selection;
+        appearance.SelectionChanged += (_, _) => { ApplyAppearance(appearance.SelectedIndex); if (AppearancePath is { } path) AppearanceStore.Save(path, new(appearance.SelectedIndex)); }; Grid.SetColumn(appearance, 1); footer.Children.Add(appearance);
         var more = new Button { Content = new SymbolIcon(Symbol.More), MinWidth = 36 }; AutomationProperties.SetName(more, "更多操作");
         var menu = new MenuFlyout();
         var hotkeySettings = new MenuFlyoutItem { Text = "全局快捷键", Icon = new SymbolIcon(Symbol.Keyboard) }; hotkeySettings.Click += (_, _) => Track(ShowHotkeySettingsAsync()); menu.Items.Add(hotkeySettings);
@@ -133,7 +149,9 @@ sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true; SetTitleBar(titleBar);
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "XScreen.ico"));
         AppWindow.TitleBar.PreferredTheme = TitleBarTheme.Dark; AppWindow.TitleBar.BackgroundColor = AppWindow.TitleBar.ButtonBackgroundColor = Windows.UI.Color.FromArgb(255, 24, 24, 27); AppWindow.TitleBar.ButtonForegroundColor = Colors.White;
-        if (AppWindow.Presenter is OverlappedPresenter p) { p.PreferredMinimumWidth = 840; p.PreferredMinimumHeight = 680; }
+        // Minimum size comes from the store's constants so it cannot drift from the restore floor.
+        // A stale 680 here let the window shrink far below what the control column needs.
+        if (AppWindow.Presenter is OverlappedPresenter p) { p.PreferredMinimumWidth = (int)WindowStateStore.MinimumWidth; p.PreferredMinimumHeight = (int)WindowStateStore.MinimumHeight; }
         AppWindow.Closing += (_, args) =>
         {
             if (closeApproved) return;
@@ -148,13 +166,22 @@ sealed partial class MainWindow : Window
         try { resizeObserver = new(WinRT.Interop.WindowNative.GetWindowHandle(this), OnMoveSize); }
         catch (Exception ex) { AppLog.Write("window-resize-observer", ex.ToString()); }
         Closed += (_, _) => { windowStateTimer?.Stop(); resizeObserver?.Dispose(); hotkeys?.Dispose(); trayMenu?.Dispose(); native?.Dispose(); }; root.ActualThemeChanged += (_, _) => UpdatePalette();
+        // RequestedTheme was seeded near the top of this constructor, so ActualTheme may
+        // already be resolved before the handler above exists and no change event follows.
+        // Painting the palette once here makes the seeded choice visible on the first frame.
+        UpdatePalette();
         AppWindow.Changed += (_, args) =>
         {
             if (args.DidSizeChange || args.DidPresenterChange) QueueWindowStateSave();
         };
         root.SizeChanged += (_, e) =>
         {
-            bool compact = e.NewSize.Height < 780;
+            // The normal layout needs about 1010 logical pixels (620 for the control column plus
+        // 390 of header, shelf and footer). Switching below that keeps the normal metrics from
+        // being forced into a window too short for them, which showed up as a lone scrollbar
+    // rail down the right edge. The compact layout needs about 820, so 1000 leaves both
+    // branches slack and still lets the window shrink well below its default size.
+            bool compact = e.NewSize.Height < 1010;
             ultra.Visibility = e.NewSize.Width < 1050 ? Visibility.Collapsed : Visibility.Visible;
             header.MinHeight = compact ? 66 : 82; shelf.MinHeight = compact ? 100 : 134; layout.RowSpacing = compact ? 8 : 12;
             foreach (var row in rows.Values) row.Compact(compact);
@@ -188,6 +215,20 @@ sealed partial class MainWindow : Window
             else if (Program.PassiveCapture is { } path) { await Task.Delay(500); await Capture(path); }
             if (Program.ShowTray) { ShowTrayMenu(native?.GetTrayAnchor() ?? new PointInt32(800, 600)); if (Program.TrayCapture is { } trayPath) { await Task.Delay(500); await trayMenu!.Capture(trayPath); } }
         };
+    }
+    // The single precondition every explicit monitor request must clear. Kept in one place
+    // so a new blocking state cannot be added to one entry point and missed by the others.
+    // Returns the confirmed device rather than a bool: the null/unsupported check and the
+    // value handed to the caller then stay linked, which a plain boolean cannot express.
+    // `refreshing` counts a read in flight, so callers must not set it before checking.
+    MonitorDevice? IdleDevice
+    {
+        get
+        {
+            if (exiting || busy || refreshing || resetDialogOpen || hotkeyDialogOpen || halted
+                || controller.Halted || rows.Values.Any(r => r.Pending)) return null;
+            return selected is { Supported: true } device ? device : null;
+        }
     }
     bool CanAdjust(byte code) => ready && !exiting && !refreshing && !resetDialogOpen && !hotkeyDialogOpen && !resetting && advanced?.Busy != true && !halted && !controller.Halted && selected?.Supported == true && rows.TryGetValue(code, out var row) && row.Available;
     void Track(Task task) { operations.Add(task); _ = task.ContinueWith(_ => DispatcherQueue.TryEnqueue(() => operations.Remove(task)), TaskScheduler.Default); }
@@ -268,14 +309,14 @@ sealed partial class MainWindow : Window
     }
     async Task<MonitorSnapshot> ReadPictureStateAsync()
     {
-        if (exiting || busy || refreshing || resetDialogOpen || hotkeyDialogOpen || halted || controller.Halted || rows.Values.Any(r => r.Pending) || selected?.Supported != true)
+        if (IdleDevice is not { } device)
             throw new InvalidOperationException("当前无法刷新。请等待当前调节完成，并确认显示器已连接且会话未暂停。");
         refreshing = true; EnableControls(false); UpdateRefresh(); trayMenu?.Dismiss();
         try
         {
             // The ordinary pane must refresh the quick controls and summary as well.
             // The separate diagnostic comparison retains its explicit four-field capture.
-            var snapshot = await controller.ReadAsync(selected);
+            var snapshot = await controller.ReadAsync(device);
             if (exiting) throw new OperationCanceledException("程序正在退出。");
             PresentSnapshot(snapshot, loadEditors: false);
             AppLog.Write("picture-state-read", JsonSerializer.Serialize(new { snapshot.At, values = snapshot.Values, source = renderOnly ? "offline-sample" : "monitor" }));
@@ -294,12 +335,12 @@ sealed partial class MainWindow : Window
     }
     async Task<MonitorSnapshot> ReadOsdComparisonAsync()
     {
-        if (exiting || busy || refreshing || resetDialogOpen || hotkeyDialogOpen || halted || controller.Halted || rows.Values.Any(r => r.Pending) || selected?.Supported != true)
+        if (IdleDevice is not { } device)
             throw new InvalidOperationException("当前无法采集。请先确认已连接且没有调节、读取或故障待处理。");
         refreshing = true; EnableControls(false); UpdateRefresh(); trayMenu?.Dismiss();
         try
         {
-            var snapshot = await controller.ReadOsdComparisonAsync(selected);
+            var snapshot = await controller.ReadOsdComparisonAsync(device);
             if (exiting) throw new OperationCanceledException("程序正在退出。");
             return snapshot;
         }
@@ -311,14 +352,14 @@ sealed partial class MainWindow : Window
     {
         // Reject stale or programmatic contrast requests before busy/logging/fault state.
         MonitorSafetyPolicy.EnsureWriteAllowed(OsdProtocol.Code(control));
-        if (exiting || busy || refreshing || resetDialogOpen || hotkeyDialogOpen || halted || controller.Halted || rows.Values.Any(r => r.Pending) || selected?.Supported != true)
+        if (IdleDevice is not { } device)
             throw new InvalidOperationException("请等待当前调节完成，并确认显示器已连接且会话未暂停。");
         busy = true; EnableControls(false); UpdateRefresh(); trayMenu?.Dismiss();
         try
         {
             var command = OsdProtocol.DescribeCandidate(control, target);
             AppLog.Write("user-write-request", JsonSerializer.Serialize(new { code = command.Code, target, encodedTarget = command.EncodedValue, source = "explicit-osd-apply", hardwareWriteVerified = false }));
-            var result = await controller.WriteOsdAsync(selected, control, target);
+            var result = await controller.WriteOsdAsync(device, control, target);
             if (!exiting)
             {
                 PresentSnapshot(result.Snapshot, loadEditors: false);
@@ -443,10 +484,26 @@ sealed partial class MainWindow : Window
         trayMenu?.Dispose(); native?.Dispose();
         closeApproved = true; Close(); Application.Current.Exit();
     }
+    // Single place that maps the selector onto the requested theme. Only user-driven
+    // changes call this; ActualTheme settles on the next frame and ActualThemeChanged
+    // re-runs UpdatePalette with the resolved value. Construction seeds RequestedTheme
+    // directly so the first frame is already correct.
+    void ApplyAppearance(int selection)
+    {
+        root.RequestedTheme = selection switch { 0 => ElementTheme.Dark, 1 => ElementTheme.Light, _ => ElementTheme.Default };
+        UpdatePalette();
+    }
     void UpdatePalette()
     {
         bool dark = root.ActualTheme == ElementTheme.Dark; Palette.Apply(dark); backdrop.Visibility = dark ? Visibility.Visible : Visibility.Collapsed; logo.Source = Asset(dark ? "LG-Dark.svg" : "LG.svg");
         titleBar.RequestedTheme = root.ActualTheme; titleBar.Background = windowRoot.Background = Palette.Ground;
+        // Secondary buttons do not follow the palette on their own.
+        foreach (var row in rows.Values) row.ApplyButtonTheme();
+        // The thumb keeps the ground colour so it reads as a disc punched out of the rail in
+        // both themes; the accent halo behind it supplies the "this is draggable" cue.
+        var thumb = new SolidColorBrush(dark ? Windows.UI.Color.FromArgb(255, 246, 243, 245) : Windows.UI.Color.FromArgb(255, 24, 22, 25));
+        root.Resources["SliderOuterThumbBackground"] = thumb;
+        root.Resources["SliderThumbBorderBrush"] = thumb;
         trayMenu?.SetTheme(root.ActualTheme);
         osdComparison?.SetTheme(root.ActualTheme);
         resetView?.SetTheme(root.ActualTheme);
@@ -464,8 +521,8 @@ sealed partial class MainWindow : Window
         rememberedWindowState = saved ?? new(bounds.Width / scale, bounds.Height / scale, false);
         if (AppWindow.Presenter is OverlappedPresenter presenter)
         {
-            presenter.PreferredMinimumWidth = Math.Min((int)Math.Ceiling(840 * scale), bounds.Width);
-            presenter.PreferredMinimumHeight = Math.Min((int)Math.Ceiling(680 * scale), bounds.Height);
+            presenter.PreferredMinimumWidth = Math.Min((int)Math.Ceiling(WindowStateStore.MinimumWidth * scale), bounds.Width);
+            presenter.PreferredMinimumHeight = Math.Min((int)Math.Ceiling(WindowStateStore.MinimumHeight * scale), bounds.Height);
         }
         AppWindow.MoveAndResize(bounds);
         if (saved?.Maximized == true && AppWindow.Presenter is OverlappedPresenter maximized) maximized.Maximize();
@@ -475,7 +532,11 @@ sealed partial class MainWindow : Window
     {
         int margin = Math.Min((int)Math.Ceiling(16 * scale), Math.Max(0, (Math.Min(work.Width, work.Height) - 1) / 2));
         int width = Math.Min((int)Math.Round((offline ? 1440 : 1220) * scale), Math.Max(1, work.Width - 2 * margin));
-        int height = Math.Min((int)Math.Round((offline ? 1024 : 900) * scale), Math.Max(1, work.Height - 2 * margin));
+        // Tall enough for the 540px control column plus header, shelf and footer without the
+        // column having to compress the rail.
+        // Leaves headroom above the 390px of surrounding chrome plus the 620px control column;
+        // sizing it to the exact sum clipped the channel icons by a few pixels.
+        int height = Math.Min((int)Math.Round((offline ? 1120 : 1060) * scale), Math.Max(1, work.Height - 2 * margin));
         return new(work.X + (work.Width - width) / 2, work.Y + (work.Height - height) / 2, width, height);
     }
     [DllImport("user32.dll")] static extern uint GetDpiForWindow(IntPtr hwnd);
@@ -611,6 +672,19 @@ sealed partial class MainWindow : Window
         Directory.CreateDirectory(Path.GetDirectoryName(path)!); using var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write); await file.WriteAsync(png);
         captures.Add(new { path, width = bitmap.PixelWidth, height = bitmap.PixelHeight, logicalWidth = root.ActualWidth, logicalHeight = root.ActualHeight, scrollableHeight = scroll.ScrollableHeight, halted, values = rows.Values.Select(r => new { r.Spec.Name, lastKnown = r.Current, displayedValue = r.DisplayValue, r.Available, enabled = r.Slider.IsEnabled }).ToArray() }); AppLog.Write("passive-capture", path);
     }
+    // A window can land a pixel short of its content at some DPI and the Auto scrollbar then
+// appears as a full-height rail, which reads as a layout crack rather than as scrolling.
+// Trimming the bar keeps that case quiet without changing whether content scrolls.
+    static void ThinScrollBar(ScrollViewer viewer)
+    {
+        viewer.Resources["ScrollBarSize"] = 6d;
+        viewer.Resources["ScrollBarVerticalThumbMinHeight"] = 24d;
+        viewer.Resources["ScrollBarTrackFill"] = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+        viewer.Resources["ScrollBarTrackFillPointerOver"] = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+        viewer.Resources["ScrollBarPanningThumbBackground"] = Palette.Line;
+        viewer.Resources["ScrollBarThumbFill"] = Palette.Line;
+        viewer.Resources["ScrollBarThumbFillPointerOver"] = Palette.Secondary;
+    }
     static ImageSource Asset(string f) => f.EndsWith(".svg") ? new SvgImageSource(new Uri(Path.Combine(AppContext.BaseDirectory, "Assets", f))) : new BitmapImage(new Uri(Path.Combine(AppContext.BaseDirectory, "Assets", f)));
     static void AddStatus(Grid parent, int column, string label, TextBlock value, string helper)
     {
@@ -629,14 +703,23 @@ static class Palette
 {
     public static readonly SolidColorBrush Ground = Brush(17, 17, 19), Primary = Brush(246, 243, 245), Secondary = Brush(186, 182, 189), Line = Brush(50, 49, 54), Accent = Brush(229, 0, 70);
     public static readonly SolidColorBrush Error = Brush(255, 163, 181);
+    // Surface for secondary buttons that carry no accent: the WinUI default is nearly
+    // invisible on the light ground, so both themes paint it explicitly.
+    public static readonly SolidColorBrush ControlSurface = Brush(53, 53, 59);
+    public static readonly SolidColorBrush ControlSurfaceHover = Brush(66, 66, 73), ControlSurfacePressed = Brush(44, 44, 49);
     static SolidColorBrush Brush(byte r, byte g, byte b) => new(Windows.UI.Color.FromArgb(255, r, g, b));
     public static void Apply(bool dark)
     {
         Ground.Color = dark ? Windows.UI.Color.FromArgb(255, 17, 17, 19) : Windows.UI.Color.FromArgb(255, 249, 247, 248);
         Primary.Color = dark ? Windows.UI.Color.FromArgb(255, 246, 243, 245) : Windows.UI.Color.FromArgb(255, 24, 22, 25);
-        Secondary.Color = dark ? Windows.UI.Color.FromArgb(255, 186, 182, 189) : Windows.UI.Color.FromArgb(255, 99, 93, 102);
+        // Light secondary text is darker than the design token #635D66 so small helper
+        // copy keeps a comfortable contrast ratio on the near-white ground.
+        Secondary.Color = dark ? Windows.UI.Color.FromArgb(255, 186, 182, 189) : Windows.UI.Color.FromArgb(255, 84, 78, 90);
         Line.Color = dark ? Windows.UI.Color.FromArgb(255, 50, 49, 54) : Windows.UI.Color.FromArgb(255, 218, 212, 218);
         Error.Color = dark ? Windows.UI.Color.FromArgb(255, 255, 163, 181) : Windows.UI.Color.FromArgb(255, 164, 0, 48);
+        ControlSurface.Color = dark ? Windows.UI.Color.FromArgb(255, 53, 53, 59) : Windows.UI.Color.FromArgb(255, 234, 230, 235);
+        ControlSurfaceHover.Color = dark ? Windows.UI.Color.FromArgb(255, 66, 66, 73) : Windows.UI.Color.FromArgb(255, 221, 216, 224);
+        ControlSurfacePressed.Color = dark ? Windows.UI.Color.FromArgb(255, 44, 44, 49) : Windows.UI.Color.FromArgb(255, 210, 204, 213);
     }
 }
 
@@ -645,7 +728,9 @@ sealed class ControlChannel
     readonly Action<ControlChannel, ControlIntent> changed;
     readonly Action editChanged;
     readonly ControlEditState edit = new();
-    readonly Button increase = new() { Content = new SymbolIcon(Symbol.Add), Width = 42, Height = 36 }, decrease = new() { Content = new SymbolIcon(Symbol.Remove), Width = 42, Height = 36 }, undo = new() { Content = "撤销", Width = 100, Height = 34 };
+    // Widths match the rail so every row shares one horizontal centre; differing widths made
+    // the track sit a few pixels left of the buttons above and below it.
+    readonly Button increase = new() { Content = new SymbolIcon(Symbol.Add), Width = 56, Height = 36 }, decrease = new() { Content = new SymbolIcon(Symbol.Remove), Width = 56, Height = 36 }, undo = new() { Content = "撤销", Width = 100, Height = 34 };
     readonly TextBlock value = MainWindow.Text("—", 96, true);
     readonly Button valueButton;
     // Preserve invalid user input until explicit validation; never turn 150 into a write of100.
@@ -659,7 +744,7 @@ sealed class ControlChannel
     ControlIntent? inFlight;
     string confirmedFeedback = "等待读取";
     public ControlSpec Spec { get; }
-    public Grid View { get; } = new() { RowSpacing = 5, MinHeight = 500 };
+    public Grid View { get; } = new() { RowSpacing = 5, MinHeight = 620 };
     public Slider Slider { get; }
     public TextBlock Feedback { get; } = MainWindow.Text("等待读取", 12);
     public uint Current => edit.Confirmed;
@@ -671,12 +756,22 @@ sealed class ControlChannel
     public ControlChannel(ControlSpec spec, Action<ControlChannel, ControlIntent> onChanged, Action onEditChanged)
     {
         Spec = spec; changed = onChanged; editChanged = onEditChanged;
-        foreach (double h in new double[] { 30, 34, 24, 116, 40, -1, 40, 42, 26 }) View.RowDefinitions.Add(new() { Height = h < 0 ? new GridLength(1, GridUnitType.Star) : new GridLength(h) });
+        // The feedback line needs a full text row; at 26px its ascenders and descenders were
+// clipped into a single smear.
+        foreach (double h in new double[] { 28, 30, 20, 110, 32, -1, 32, 46, 34 }) View.RowDefinitions.Add(new() { Height = h < 0 ? new GridLength(1, GridUnitType.Star) : new GridLength(h) });
         if (spec.Code == 0x87) Put(new Image { Source = new SvgImageSource(new Uri(Path.Combine(AppContext.BaseDirectory, "Assets", "Sharpness.svg"))), Width = 30, Height = 30, HorizontalAlignment = HorizontalAlignment.Center }, 0);
         else Put(new FontIcon { Glyph = spec.Code == 0x10 ? "\uE706" : "\uE767", FontFamily = new FontFamily("Segoe Fluent Icons"), FontSize = 28, Foreground = Palette.Accent, HorizontalAlignment = HorizontalAlignment.Center }, 0);
         var title = MainWindow.Text(spec.Name, 26, true); title.HorizontalAlignment = HorizontalAlignment.Center; Put(title, 1);
         value.FontWeight = FontWeights.Bold;
-        var helper = MainWindow.Text(spec.Code switch { 0x10 => "调节屏幕明暗", 0x62 => "不影响 Windows 系统音量", _ => "调整画面细节，步长 10" }, 13); helper.HorizontalAlignment = HorizontalAlignment.Center; Put(helper, 2);
+// The rail's own + / - buttons move by Step; the tray rows and global hotkeys move by
+// CoarseStep. That difference is surfaced as a tooltip per button and on the channel,
+// not as extra helper text: spelling both numbers inline overflows the narrowest
+// channel and truncates the label.
+        var helper = MainWindow.Text(spec.Code switch { 0x10 => "调节屏幕明暗", 0x62 => "不影响 Windows 系统音量", _ => "调整画面细节" }, 13);
+        helper.HorizontalAlignment = HorizontalAlignment.Center; Put(helper, 2);
+        string coarseHint = spec.Step == spec.CoarseStep
+            ? $"每次 {spec.Step}"
+            : $"这里的加号每次 {spec.Step}，托盘菜单和全局快捷键每次 {spec.CoarseStep}";
         valueButton = new() { Content = value, Padding = new Thickness(8, 0, 8, 0), BorderThickness = new Thickness(0), Background = new SolidColorBrush(Colors.Transparent), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         valueButton.Resources["ButtonBackgroundDisabled"] = new SolidColorBrush(Colors.Transparent);
         valueButton.Resources["ButtonBorderBrushDisabled"] = new SolidColorBrush(Colors.Transparent);
@@ -688,7 +783,20 @@ sealed class ControlChannel
         applyInput.Click += (_, _) => { if (ApplyNumber()) editor.Hide(); };
         input.Children.Add(applyInput); editor.Content = input; valueButton.Flyout = editor;
         Put(valueButton, 3); Put(increase, 4);
-        Slider = new() { Minimum = 0, Maximum = 100, StepFrequency = spec.Step, SmallChange = spec.Step, LargeChange = Math.Max(10u, spec.Step), TickPlacement = TickPlacement.None, Orientation = Orientation.Vertical, MinHeight = 120, MaxHeight = 200, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Stretch, IsEnabled = false, Width = 48, IsThumbToolTipEnabled = false };
+        // MinHeight sits below the space the star row actually receives, so the rail is never
+// the element that gets squeezed when the window is short.
+        // The vertical slider template puts the track slightly left of the control's centre, so
+        // the rail lined up with neither the thumb nor the buttons above and below it. With
+        // centre alignment the margin box is what gets centred, so a left margin of 18 shifts
+        // the control right by 9 logical pixels (15.75 physical at 175%, the measured gap).
+        Slider = new() { Minimum = 0, Maximum = 100, StepFrequency = spec.Step, SmallChange = spec.Step, LargeChange = Math.Max(10u, spec.Step), TickPlacement = TickPlacement.None, Orientation = Orientation.Vertical, MinHeight = 140, MaxHeight = 320, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Stretch, IsEnabled = false, Width = 56, Margin = new Thickness(18, 0, 0, 0), IsThumbToolTipEnabled = false };
+        // Track and thumb sizing lives in the slider's own template, so it must be set on
+        // the control rather than the window resources (which apply to every slider).
+        Slider.Resources["SliderTrackThemeHeight"] = 10d;
+        Slider.Resources["SliderVerticalThumbWidth"] = 26d;
+        Slider.Resources["SliderVerticalThumbHeight"] = 26d;
+        Slider.Resources["SliderThumbCornerRadius"] = new CornerRadius(13);
+        Slider.Resources["SliderTrackCornerRadius"] = new CornerRadius(5);
         editor.Opening += (_, _) =>
         {
             ClearInputError(); number.Maximum = Slider.Maximum;
@@ -707,17 +815,23 @@ sealed class ControlChannel
         Slider.PointerCanceled += (_, _) => CancelDrag();
         increase.Click += (_, _) => Adjust(spec.Step); decrease.Click += (_, _) => Adjust(-(double)spec.Step); undo.Click += (_, _) => { if (previous is { } v) Request(v); };
         AutomationProperties.SetName(increase, "提高" + spec.Name); AutomationProperties.SetName(decrease, "降低" + spec.Name); AutomationProperties.SetName(undo, "撤销上次" + spec.Name + "调节");
+        ToolTipService.SetToolTip(increase, coarseHint); ToolTipService.SetToolTip(decrease, coarseHint); ToolTipService.SetToolTip(Slider, coarseHint);
         Put(Slider, 5); Put(decrease, 6); Put(undo, 7); Feedback.HorizontalAlignment = HorizontalAlignment.Center; Feedback.TextAlignment = TextAlignment.Center; AutomationProperties.SetLiveSetting(Feedback, Microsoft.UI.Xaml.Automation.Peers.AutomationLiveSetting.Polite); Put(Feedback, 8);
         binding = false; Clear();
     }
-    void Put(FrameworkElement e, int row) { Grid.SetRow(e, row); if (row is 4 or 6 or 7) e.HorizontalAlignment = HorizontalAlignment.Center; View.Children.Add(e); }
+    // Every row centres on the same axis. The rail used to keep its own alignment, which left
+    // the track sitting a few pixels off the +/- buttons above and below it.
+    void Put(FrameworkElement e, int row) { Grid.SetRow(e, row); e.HorizontalAlignment = HorizontalAlignment.Center; View.Children.Add(e); }
     public void Compact(bool compact)
     {
-        value.FontSize = compact ? 72 : 96; View.MinHeight = compact ? 472 : 500; View.RowSpacing = compact ? 4 : 5;
-        double[] h = compact ? [24, 30, 20, 90, 32, -1, 32, 34, 22] : [30, 34, 24, 116, 40, -1, 40, 42, 26];
+        value.FontSize = compact ? 72 : 96; View.MinHeight = compact ? 500 : 620; View.RowSpacing = compact ? 4 : 5;
+        double[] h = compact ? [22, 26, 18, 82, 26, -1, 26, 36, 30] : [28, 30, 20, 110, 32, -1, 32, 46, 34];
         for (int i = 0; i < h.Length; i++) View.RowDefinitions[i].Height = h[i] < 0 ? new GridLength(1, GridUnitType.Star) : new GridLength(h[i]);
-        Slider.MinHeight = compact ? 90 : 120; Slider.MaxHeight = compact ? 160 : 200;
-        increase.Width = decrease.Width = compact ? 42 : 48; increase.Height = decrease.Height = compact ? 32 : 40;
+        Slider.MinHeight = compact ? 90 : 140; Slider.MaxHeight = compact ? 180 : 320;
+        // The left margin compensates the template's built-in track offset; it is a constant
+        // shift, not a proportion, so it must not change with the control's width.
+        Slider.Width = compact ? 48 : 56; Slider.Margin = new Thickness(18, 0, 0, 0);
+        increase.Width = decrease.Width = compact ? 48 : 56; increase.Height = decrease.Height = compact ? 32 : 40;
         undo.Width = compact ? 100 : 116; undo.Height = compact ? 32 : 38;
     }
     internal bool Editing => dragging || editor.IsOpen;
@@ -784,9 +898,20 @@ sealed class ControlChannel
         // A new snapshot may belong to a different picture/color mode. Undo may only
         // refer to a direct adjustment accepted since this synchronization boundary.
         previous = null; inFlight = null; CancelPending(); Available = read?.Success == true && read.Maximum <= 100 && read.Maximum >= Spec.Step && read.Current <= read.Maximum && read.Current % Spec.Step == 0;
-        binding = true; try { if (Available) { Slider.Maximum = number.Maximum = read!.Maximum / Spec.Step * Spec.Step; edit.Load(read.Current); Slider.Value = read.Current; value.Text = Current.ToString(); } else value.Text = "—"; } finally { binding = false; }
+        binding = true; try { if (Available) { ShowKnown(); Slider.Maximum = number.Maximum = read!.Maximum / Spec.Step * Spec.Step; edit.Load(read.Current); Slider.Value = read.Current; value.Text = Current.ToString(); } else ShowUnknown(); } finally { binding = false; }
         confirmedFeedback = Available ? "已读取显示器实际值" : "暂不可调"; UpdateFeedback(); UpdateUndo();
     }
+    // Unknown state must never leave the rail pointing at a stale value: a reader would
+    // take that position as the current setting while the text says it is unknown. The
+    // rail is parked at its minimum and faded, so position carries no meaning at all.
+    void ShowUnknown()
+    {
+        binding = true;
+        try { Slider.Value = Slider.Minimum; value.Text = "—"; }
+        finally { binding = false; }
+        Slider.Opacity = .35;
+    }
+    void ShowKnown() => Slider.Opacity = 1;
     void UpdateFeedback()
     {
         if (!Pending) Feedback.Text = confirmedFeedback;
@@ -799,7 +924,31 @@ sealed class ControlChannel
         enabled = allow && Available;
         if (!enabled) { CancelPending(); editor.Hide(); ClearInputError(); }
         Slider.IsEnabled = increase.IsEnabled = decrease.IsEnabled = valueButton.IsEnabled = number.IsEnabled = applyInput.IsEnabled = enabled;
-        value.Foreground = enabled ? Palette.Primary : Palette.Secondary; UpdateUndo();
+        value.Foreground = enabled ? Palette.Primary : Palette.Secondary; ApplyButtonTheme(); UpdateUndo();
+    }
+    // The undo button has no accent of its own, so it must be painted explicitly in both
+    // themes: the stock WinUI look all but vanishes on the light ground. Called on every
+    // theme change as well as on enable/disable.
+    internal void ApplyButtonTheme()
+    {
+        undo.Background = Palette.ControlSurface;
+        undo.Foreground = Palette.Primary;
+        undo.BorderBrush = Palette.Line;
+        undo.BorderThickness = new Thickness(1);
+        // Hover and pressed must be pinned too, otherwise the stock WinUI brushes take over
+        // on pointer-over and the button flashes a colour that belongs to neither theme.
+        undo.Resources["ButtonBackground"] = Palette.ControlSurface;
+        undo.Resources["ButtonBackgroundPointerOver"] = Palette.ControlSurfaceHover;
+        undo.Resources["ButtonBackgroundPressed"] = Palette.ControlSurfacePressed;
+        undo.Resources["ButtonBackgroundDisabled"] = Palette.ControlSurface;
+        undo.Resources["ButtonForeground"] = Palette.Primary;
+        undo.Resources["ButtonForegroundPointerOver"] = Palette.Primary;
+        undo.Resources["ButtonForegroundPressed"] = Palette.Primary;
+        undo.Resources["ButtonForegroundDisabled"] = Palette.Secondary;
+        undo.Resources["ButtonBorderBrush"] = Palette.Line;
+        undo.Resources["ButtonBorderBrushPointerOver"] = Palette.Line;
+        undo.Resources["ButtonBorderBrushPressed"] = Palette.Line;
+        undo.Resources["ButtonBorderBrushDisabled"] = Palette.Line;
     }
     public bool IsCurrent(ControlIntent intent) => edit.IsCurrent(intent);
     public void BeginCommit(ControlIntent intent) { inFlight = intent; UpdateFeedback(); }
@@ -810,7 +959,12 @@ sealed class ControlChannel
         if (!Pending) ShowDesired();
         UpdateFeedback(); UpdateUndo();
     }
-    void ShowDesired() { binding = true; try { if (Slider.Value != Desired) Slider.Value = Desired; value.Text = Available ? Desired.ToString() : "—"; } finally { binding = false; } }
+    void ShowDesired()
+    {
+        if (!Available) { ShowUnknown(); return; }
+        ShowKnown();
+        binding = true; try { if (Slider.Value != Desired) Slider.Value = Desired; value.Text = Desired.ToString(); } finally { binding = false; }
+    }
     public void CancelPending() { debounce.Stop(); dragging = dirty = false; edit.Cancel(inFlight); ShowDesired(); UpdateFeedback(); UpdateUndo(); }
-    public void Clear() { inFlight = null; CancelPending(); previous = null; Available = false; SetEnabled(false); value.Text = "—"; Feedback.Text = confirmedFeedback = "等待读取"; }
+    public void Clear() { inFlight = null; CancelPending(); previous = null; Available = false; SetEnabled(false); ShowUnknown(); Feedback.Text = confirmedFeedback = "等待读取"; }
 }
