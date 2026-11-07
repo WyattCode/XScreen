@@ -1,0 +1,108 @@
+{
+  "tag": "v0.3.32",
+  "installerFileVersion": "0.3.32.0",
+  "applicationVersion": "0.3.32",
+  "applicationPayloadChanged": false,
+  "payloadFiles": 523,
+  "packager": "electron-builder",
+  "packagerVersion": "26.15.3",
+  "packagerMode": "prepackaged native WinUI",
+  "releaseNotes": "docs/RELEASE-0.3.32.md",
+  "offlineRegression": {
+    "date": "2026-11-08",
+    "uiScenarios": 13,
+    "uiAssertions": 624,
+    "failures": 0,
+    "realMonitorReads": 0,
+    "realMonitorWrites": 0,
+    "report": "artifacts/verify-20261108-scenarios/results.txt",
+    "testProjects": {
+      "XScreen.Acceptance": "pass",
+      "XScreen.OfflineSafety": 19,
+      "XScreen.InteractionChecks": 25,
+      "XScreen.DiagnosticsChecks": 23,
+      "XScreen.OsdChecks": 187,
+      "XScreen.TrayChecks": 61
+    },
+    "build": "artifacts/XScreen-0.3.32-verify-20261108-win-x64，XScreen.Core 与 XScreen.App 均 0 警告 0 错误"
+  },
+  "installerOfflineChecks": {
+    "reRunOn20261108": false,
+    "reason": "本机 python 缺 pefile，Test-XScreenInstaller.py 与 Test-XScreenInstallerBehavior.py 本轮未执行。0.3.31-r2 的 554 项静态检查与 64 项 NSIS 行为回归仍然适用：安装包生成方式与 packaging/ 片段在 0.3.32 未改动。",
+    "previousRound": {
+      "tag": "v0.3.31-r2",
+      "staticChecks": 554,
+      "behaviorCases": 64,
+      "failures": 0
+    }
+  },
+  "installerExecuted": true,
+  "uninstallerExecuted": true,
+  "formalApplicationStarted": true,
+  "realMachineVerification": {
+    "date": ["2026-11-02", "2026-11-08"],
+    "installPath": "D:\\Apps\\XScreen",
+    "installerRun": "GUI 向导与静默 `XScreen Setup 0.3.32.exe /S /D=D:\\Apps\\XScreen` 都成功，exit=0，装机 524 个文件",
+    "uninstallerRun": "\"D:\\Apps\\XScreen\\Uninstall XScreen.exe\" /currentuser /S；安装目录 526 个文件降到 2 个（保留 runtime-data 下的日志），卸载器自身删除",
+    "registry": {
+      "hive": "HKCU",
+      "key": "89f32412-8419-574a-a05f-81788692eca6",
+      "displayName": "XScreen 0.3.32",
+      "installLocation": "",
+      "installDate": "",
+      "uninstallString": "\"D:\\Apps\\XScreen\\Uninstall XScreen.exe\" /currentuser",
+      "removedByUninstaller": true,
+      "machineHiveEntries": 0
+    },
+    "userFilesPreservedByUninstall": [
+      "%LOCALAPPDATA%\\XScreen\\window-state.json",
+      "D:\\Apps\\XScreen\\runtime-data\\app.log",
+      "D:\\Apps\\XScreen\\runtime-data\\sessions\\*.jsonl"
+    ],
+    "applicationStartup": {
+      "logFirstLine": "Starting XScreen 0.3.31 LIVE; startup performs reads only.",
+      "startupRecord": "{\"mode\":\"live\",\"nativeReadAttempts\":4,\"nativeWriteAttempts\":0,\"automaticSettingTests\":false}",
+      "monitorWritesPerformed": 0
+    }
+  },
+  "defects": [
+    "卸载不删除开始菜单的 XScreen\\XScreen.lnk，其目标 D:\\Apps\\XScreen\\XScreen.exe 已被删除，成为死链接。",
+    "卸载保留 runtime-data 但清除卸载登记，导致重装到同一目录被安装包守卫拒绝：「该文件夹已有其他内容。请选择空的 XScreen 文件夹，或已登记的 XScreen 安装目录。」用户只能删除目录（连带丢失被保留的日志）或改装到别处。",
+    "装机缺少 Microsoft.Windows.Workloads.Resources_ec.dll：同一个安装包全新安装复现，ZIP 与打包 stage 目录里都有该文件，安装后没有。原因未查明（NSIS 文件清单或防病毒拦截）。",
+    "src/XScreen.App/Program.cs:28 的启动日志硬编码 \"0.3.31\"，在 0.3.32 的装机上仍显示 0.3.31，无断言覆盖。"
+  ],
+  "codeSigning": "unsigned",
+  "assets": [
+    {
+      "name": "XScreen-Setup-0.3.32.exe",
+      "size": 67181858,
+      "sha256": "270af07caabc56134bf0c02c877bd0931af36d06829fdaff336adac27e2dcc35"
+    },
+    {
+      "name": "XScreen-Setup-0.3.32.exe.blockmap",
+      "size": 70920,
+      "sha256": "34a60e4ad586c32ca3f1460981f05156925719e547eeaf1a2e3c21f9722146e9"
+    },
+    {
+      "name": "latest.yml",
+      "size": 345,
+      "sha256": "09be7819f57ce2e1a668dfbe1eb6bb427f8643a2436e679838f33855a6c76d59"
+    },
+    {
+      "name": "XScreen-0.3.32-win-x64.zip",
+      "size": 89544288,
+      "sha256": "168ce9b878841b7bf4381a40cbeb5de8bac3a9afd9d3a99bbd781a2c423a9365"
+    },
+    {
+      "name": "XScreen-0.3.32-files.json",
+      "size": 136735,
+      "sha256": "07a4de570237d6f203192488a1175e4ebbea676af5ff1da2f0a9fa2021374db1"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 458,
+      "sha256": "82f8236ffe0d7d9e4cb030ca5e059c81118a2a6b994fd3eeb848270ba5845717"
+    }
+  ],
+  "validationScope": "离线检查覆盖 13 个模拟 UI 场景与 6 个独立测试工程（真实显示器读写 0/0）；安装与卸载在 2026-11-02 与 2026-11-08 于本机真实执行过，结果与遗留缺陷见 realMachineVerification 与 defects。安装包未代码签名。"
+}
